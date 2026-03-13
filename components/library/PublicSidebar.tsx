@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/', label: 'Bulletins', icon: Headphones },
-  { href: '/learning', label: 'Learning Paths', icon: BookOpen },
+  { href: '/learning-path', label: 'Learning Paths', icon: BookOpen },
 ]
 
 export function PublicSidebar() {
