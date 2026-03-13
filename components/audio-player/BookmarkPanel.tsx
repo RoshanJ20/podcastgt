@@ -99,7 +99,7 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
       </div>
 
       {showForm && (
-        <div className="space-y-2 p-3 rounded-lg border bg-muted/30">
+        <div className="space-y-2 p-3 rounded-lg glass-card">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
             <span>{formatTime(currentTime)}</span>
@@ -112,9 +112,9 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
             className="text-sm"
           />
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleAdd} disabled={adding} className="h-7 text-xs">
+            <button onClick={handleAdd} disabled={adding} className="btn-gradient h-7 px-4 rounded-md text-xs font-medium disabled:opacity-50">
               Save
-            </Button>
+            </button>
             <Button size="sm" variant="ghost" onClick={() => setShowForm(false)} className="h-7 text-xs">
               Cancel
             </Button>
@@ -130,7 +130,7 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
             {bookmarks.map((bm) => (
               <div
                 key={bm.id}
-                className="flex items-start gap-2 p-2 rounded border bg-card hover:bg-muted/40 transition-colors"
+                className="flex items-start gap-2 p-2 rounded glass-card hover:border-primary/20 transition-colors"
               >
                 <button
                   onClick={() => onSeek(bm.timestamp_seconds)}

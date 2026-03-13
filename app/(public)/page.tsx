@@ -3,6 +3,7 @@ import { PodcastCard } from '@/components/library/PodcastCard'
 import { PlaylistCard } from '@/components/library/PlaylistCard'
 import { DomainFilter } from '@/components/library/DomainFilter'
 import { Suspense } from 'react'
+import { Headphones, BookOpen } from 'lucide-react'
 import type { Podcast, Playlist, Domain } from '@/lib/supabase/types'
 
 interface PageProps {
@@ -42,8 +43,13 @@ async function LibraryContent({ domain }: { domain?: string }) {
     <div className="space-y-12">
       {/* Technical Content */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Technical Content</h2>
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#8B5CF6]/15">
+              <Headphones className="h-5 w-5 text-[#8B5CF6]" />
+            </div>
+            <h2 className="text-xl font-semibold font-[family-name:var(--font-heading)]">Technical Content</h2>
+          </div>
           <span className="text-sm text-muted-foreground">{podcasts?.length ?? 0} podcasts</span>
         </div>
         {podcasts && podcasts.length > 0 ? (
@@ -53,7 +59,7 @@ async function LibraryContent({ domain }: { domain?: string }) {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-sm py-8 text-center border rounded-lg">
+          <p className="text-muted-foreground text-sm py-8 text-center glass-card rounded-lg">
             No technical content yet{domain ? ` for ${domain}` : ''}.
           </p>
         )}
@@ -61,8 +67,13 @@ async function LibraryContent({ domain }: { domain?: string }) {
 
       {/* Learning Series */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Learning Series</h2>
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#3B82F6]/15">
+              <BookOpen className="h-5 w-5 text-[#3B82F6]" />
+            </div>
+            <h2 className="text-xl font-semibold font-[family-name:var(--font-heading)]">Learning Series</h2>
+          </div>
           <span className="text-sm text-muted-foreground">{enrichedPlaylists.length} playlists</span>
         </div>
         {enrichedPlaylists.length > 0 ? (
@@ -72,7 +83,7 @@ async function LibraryContent({ domain }: { domain?: string }) {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-sm py-8 text-center border rounded-lg">
+          <p className="text-muted-foreground text-sm py-8 text-center glass-card rounded-lg">
             No learning series yet{domain ? ` for ${domain}` : ''}.
           </p>
         )}
@@ -86,9 +97,12 @@ export default async function LibraryPage({ searchParams }: PageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Library</h1>
-        <p className="text-muted-foreground mt-1">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden px-8 py-10 mb-2">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#8B5CF6]/20 via-[#6366F1]/10 to-[#3B82F6]/20" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,#8B5CF6_0%,transparent_50%)] opacity-10" />
+        <h1 className="text-4xl font-bold gradient-text font-[family-name:var(--font-heading)]">Library</h1>
+        <p className="text-muted-foreground mt-2 text-lg">
           Browse audio insights from National Audit Office experts.
         </p>
       </div>

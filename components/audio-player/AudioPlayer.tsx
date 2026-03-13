@@ -31,7 +31,6 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
 
   const activeUrl = duration_mode === 'short' ? shortUrl : longUrl
 
-  // Seek externally (e.g. from transcript click)
   useEffect(() => {
     if (seekTo !== null && seekTo !== undefined && audioRef.current) {
       audioRef.current.currentTime = seekTo
@@ -66,7 +65,6 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
     const time = audioRef.current?.currentTime ?? 0
     setDurationMode(mode)
     setLoading(true)
-    // After src change, seek to same relative position
     requestAnimationFrame(() => {
       if (audioRef.current) {
         audioRef.current.currentTime = time
@@ -77,14 +75,14 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
 
   if (!activeUrl) {
     return (
-      <div className="rounded-xl border bg-muted/40 p-6 text-center text-sm text-muted-foreground">
+      <div className="rounded-xl glass-card p-6 text-center text-sm text-muted-foreground">
         No audio available for this podcast.
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border bg-card p-4 space-y-3">
+    <div className="rounded-xl glass-card p-5 space-y-4">
       <audio
         ref={audioRef}
         src={activeUrl}
@@ -104,22 +102,26 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
       {/* Duration toggle */}
       {shortUrl && longUrl && (
         <div className="flex gap-2 justify-center">
-          <Button
-            size="sm"
-            variant={duration_mode === 'short' ? 'default' : 'outline'}
+          <button
             onClick={() => switchDuration('short')}
-            className="text-xs h-7 px-3"
+            className={`text-xs h-7 px-4 rounded-full font-medium transition-all ${
+              duration_mode === 'short'
+                ? 'btn-gradient'
+                : 'border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
+            }`}
           >
             Short
-          </Button>
-          <Button
-            size="sm"
-            variant={duration_mode === 'long' ? 'default' : 'outline'}
+          </button>
+          <button
             onClick={() => switchDuration('long')}
-            className="text-xs h-7 px-3"
+            className={`text-xs h-7 px-4 rounded-full font-medium transition-all ${
+              duration_mode === 'long'
+                ? 'btn-gradient'
+                : 'border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
+            }`}
           >
             Long
-          </Button>
+          </button>
         </div>
       )}
 
@@ -137,26 +139,24 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
           className="cursor-pointer"
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{formatTime(currentTime)}</span>
+          <span className="text-[#8B5CF6] font-medium">{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => skip(-10)} title="Back 10s">
+      <div className="flex items-center justify-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => skip(-10)} title="Back 10s" className="text-muted-foreground hover:text-foreground">
           <SkipBack className="h-4 w-4" />
         </Button>
-        <Button
-          variant="default"
-          size="icon"
+        <button
           onClick={togglePlay}
           disabled={loading}
-          className="h-10 w-10 rounded-full"
+          className="h-14 w-14 rounded-full btn-gradient flex items-center justify-center glow-primary disabled:opacity-50 transition-all hover:scale-105"
         >
-          {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
-        </Button>
-        <Button variant="ghost" size="icon" onClick={() => skip(10)} title="Forward 10s">
+          {isPlaying ? <Pause className="h-6 w-6 text-white" /> : <Play className="h-6 w-6 text-white ml-0.5" />}
+        </button>
+        <Button variant="ghost" size="icon" onClick={() => skip(10)} title="Forward 10s" className="text-muted-foreground hover:text-foreground">
           <SkipForward className="h-4 w-4" />
         </Button>
 
@@ -171,6 +171,7 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
                 return !m
               })
             }}
+            className="text-muted-foreground hover:text-foreground"
           >
             {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
           </Button>

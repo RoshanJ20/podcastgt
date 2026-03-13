@@ -59,8 +59,8 @@ export function TranscriptViewer({ segments, fullText, currentTime, onSeek }: Tr
               className={cn(
                 'w-full text-left text-sm leading-relaxed px-2 py-1 rounded transition-colors',
                 isActive
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? 'bg-[#8B5CF6]/10 text-[#A78BFA] font-medium border-l-2 border-[#8B5CF6]'
+                  : 'text-muted-foreground hover:bg-white/5 hover:text-foreground border-l-2 border-transparent'
               )}
             >
               <span className="text-xs font-mono mr-2 opacity-60">{formatTime(seg.start)}</span>

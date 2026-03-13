@@ -19,7 +19,6 @@ import {
   LayoutDashboard,
   Upload,
   ListMusic,
-  GripVertical,
   Users,
   Headphones,
   LogOut,
@@ -37,7 +36,6 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/upload', label: 'Upload Podcast', icon: Upload },
   { href: '/admin/playlists', label: 'Playlists', icon: ListMusic },
-  { href: '/admin/manage', label: 'Manage & Reorder', icon: GripVertical },
 ]
 
 export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {
@@ -53,9 +51,11 @@ export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="border-b p-4">
-        <Link href="/" className="flex items-center gap-2">
-          <Headphones className="h-6 w-6 text-primary" />
-          <span className="font-semibold">Podcast Hub</span>
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="bg-gradient-to-br from-[#8B5CF6] to-[#3B82F6] p-1.5 rounded-lg">
+            <Headphones className="h-4 w-4 text-white" />
+          </div>
+          <span className="font-semibold gradient-text font-[family-name:var(--font-heading)]">Podcast Hub</span>
         </Link>
       </SidebarHeader>
 
@@ -68,7 +68,10 @@ export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {
                 <SidebarMenuButton
                   render={<Link href={href} />}
                   isActive={pathname === href}
-                  className={cn(pathname === href && 'bg-accent text-accent-foreground')}
+                  className={cn(
+                    'transition-all duration-200 hover:translate-x-0.5',
+                    pathname === href && 'bg-accent text-accent-foreground'
+                  )}
                 >
                   <Icon className="h-4 w-4" />
                   {label}
@@ -86,7 +89,10 @@ export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {
                 <SidebarMenuButton
                   render={<Link href="/admin/users" />}
                   isActive={pathname === '/admin/users'}
-                  className={cn(pathname === '/admin/users' && 'bg-accent text-accent-foreground')}
+                  className={cn(
+                    'transition-all duration-200 hover:translate-x-0.5',
+                    pathname === '/admin/users' && 'bg-accent text-accent-foreground'
+                  )}
                 >
                   <Users className="h-4 w-4" />
                   User Roles
@@ -108,7 +114,7 @@ export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {
             <p className="text-xs font-medium truncate">{userEmail}</p>
             <p className="text-xs text-muted-foreground capitalize">{role}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out">
+          <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out" className="hover-glow">
             <LogOut className="h-4 w-4" />
           </Button>
         </div>

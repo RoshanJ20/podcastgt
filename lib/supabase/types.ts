@@ -3,6 +3,15 @@ export type ContentType = 'technical' | 'learning_series'
 export type UserRole = 'public' | 'admin' | 'superadmin'
 
 export const DOMAINS: Domain[] = ['AMG', 'ARG', 'QRMG', 'AITG', 'LEAP', 'Independence']
+
+export const DOMAIN_COLORS: Record<Domain, string> = {
+  AMG: 'domain-amg',
+  ARG: 'domain-arg',
+  QRMG: 'domain-qrmg',
+  AITG: 'domain-aitg',
+  LEAP: 'domain-leap',
+  Independence: 'domain-independence',
+}
 export const CONTENT_TYPES: { value: ContentType; label: string }[] = [
   { value: 'technical', label: 'Technical Content' },
   { value: 'learning_series', label: 'Learning Series' },

@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { DOMAINS } from '@/lib/supabase/types'
+import { DOMAINS, DOMAIN_COLORS } from '@/lib/supabase/types'
+import { cn } from '@/lib/utils'
 
 export function DomainFilter() {
   const router = useRouter()
@@ -21,13 +21,32 @@ export function DomainFilter() {
   }
 
   return (
-    <Tabs value={current} onValueChange={handleChange}>
-      <TabsList className="flex-wrap h-auto gap-1">
-        <TabsTrigger value="all">All</TabsTrigger>
-        {DOMAINS.map((d) => (
-          <TabsTrigger key={d} value={d}>{d}</TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+    <div className="flex flex-wrap gap-2">
+      <button
+        onClick={() => handleChange('all')}
+        className={cn(
+          'px-3.5 py-1.5 text-sm font-medium rounded-full transition-all',
+          current === 'all'
+            ? 'btn-gradient shadow-md'
+            : 'border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
+        )}
+      >
+        All
+      </button>
+      {DOMAINS.map((d) => (
+        <button
+          key={d}
+          onClick={() => handleChange(d)}
+          className={cn(
+            'px-3.5 py-1.5 text-sm font-medium rounded-full transition-all',
+            current === d
+              ? `${DOMAIN_COLORS[d]} shadow-md`
+              : 'border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
+          )}
+        >
+          {d}
+        </button>
+      ))}
+    </div>
   )
 }

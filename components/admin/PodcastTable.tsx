@@ -51,7 +51,7 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
     <tr
       ref={setNodeRef}
       style={style}
-      className="border-b hover:bg-muted/50 transition-colors"
+      className="border-b hover:bg-muted/50 transition-all duration-200 hover:translate-x-0.5"
     >
       <td className="p-3 w-8">
         <button
@@ -98,7 +98,7 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
       <td className="p-3">
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" asChild>
-            <Link href={`/admin/manage/${podcast.id}/edit`}>
+            <Link href={`/admin/edit/${podcast.id}`}>
               <Pencil className="h-4 w-4" />
             </Link>
           </Button>

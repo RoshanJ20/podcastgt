@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Search, Sparkles, Clock } from 'lucide-react'
 import Link from 'next/link'
+import { DOMAIN_COLORS, type Domain } from '@/lib/supabase/types'
 
 interface SearchResult {
   podcast_id: string
@@ -55,11 +54,11 @@ export default function SearchPage() {
       {/* Header */}
       <div className="text-center space-y-3">
         <div className="flex justify-center">
-          <div className="bg-primary/10 p-3 rounded-full">
-            <Sparkles className="h-7 w-7 text-primary" />
+          <div className="bg-gradient-to-br from-[#8B5CF6] to-[#3B82F6] p-3.5 rounded-2xl shadow-lg glow-primary">
+            <Sparkles className="h-7 w-7 text-white" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold">Ask the Podcast</h1>
+        <h1 className="text-3xl font-bold gradient-text font-[family-name:var(--font-heading)]">Ask the Podcast</h1>
         <p className="text-muted-foreground max-w-lg mx-auto">
           Ask any question and we&apos;ll find the podcasts where that topic was discussed,
           with the exact timestamp.
@@ -78,9 +77,13 @@ export default function SearchPage() {
             autoFocus
           />
         </div>
-        <Button type="submit" disabled={loading || !query.trim()}>
-          {loading ? 'Searching…' : 'Search'}
-        </Button>
+        <button
+          type="submit"
+          disabled={loading || !query.trim()}
+          className="btn-gradient px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+        >
+          {loading ? 'Searching...' : 'Search'}
+        </button>
       </form>
 
       {/* Example queries */}
@@ -99,7 +102,7 @@ export default function SearchPage() {
               <button
                 key={q}
                 onClick={() => setQuery(q)}
-                className="text-sm px-3 py-1.5 rounded-full border hover:bg-muted transition-colors"
+                className="text-sm px-3.5 py-1.5 rounded-full border border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/10 hover:border-[#8B5CF6]/50 text-foreground/80 transition-all"
               >
                 {q}
               </button>
@@ -112,8 +115,8 @@ export default function SearchPage() {
       {searched && (
         <div className="space-y-4">
           {message && (
-            <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 flex items-start gap-2">
-              <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
+            <div className="text-sm text-muted-foreground bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 rounded-lg p-4 flex items-start gap-2">
+              <Sparkles className="h-4 w-4 mt-0.5 shrink-0 text-[#8B5CF6]" />
               <p>{message}</p>
             </div>
           )}
@@ -124,21 +127,25 @@ export default function SearchPage() {
                 Found {results.length} result{results.length !== 1 ? 's' : ''}
               </p>
               {results.map((result, i) => (
-                <Card key={i}>
+                <Card key={i} className="glass-card hover:border-[#8B5CF6]/20 transition-colors">
                   <CardContent className="pt-4">
                     <div className="flex items-start gap-3">
                       {result.podcast_thumbnail && (
                         <img
                           src={result.podcast_thumbnail}
                           alt=""
-                          className="w-12 h-12 rounded object-cover shrink-0"
+                          className="w-12 h-12 rounded-lg object-cover shrink-0"
                         />
                       )}
                       <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          {result.domain && <Badge variant="outline" className="text-xs">{result.domain}</Badge>}
+                          {result.domain && (
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${DOMAIN_COLORS[result.domain as Domain] ?? 'bg-primary text-white'}`}>
+                              {result.domain}
+                            </span>
+                          )}
                           {result.timestamp_seconds !== undefined && (
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1 text-xs text-[#8B5CF6] font-medium">
                               <Clock className="h-3 w-3" />
                               {formatTime(result.timestamp_seconds)}
                             </span>
@@ -153,13 +160,12 @@ export default function SearchPage() {
                           </p>
                         )}
                       </div>
-                      <Button size="sm" variant="outline" asChild className="shrink-0">
-                        <Link
-                          href={`/podcast/${result.podcast_id}${result.timestamp_seconds !== undefined ? `?t=${result.timestamp_seconds}` : ''}`}
-                        >
-                          Listen
-                        </Link>
-                      </Button>
+                      <Link
+                        href={`/podcast/${result.podcast_id}${result.timestamp_seconds !== undefined ? `?t=${result.timestamp_seconds}` : ''}`}
+                        className="btn-gradient px-4 py-2 rounded-lg text-xs font-medium shrink-0"
+                      >
+                        Listen
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>

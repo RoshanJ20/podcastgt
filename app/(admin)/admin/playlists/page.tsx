@@ -18,9 +18,11 @@ export default async function PlaylistsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Learning Series Playlists</h1>
-        <p className="text-muted-foreground">
-          Create and manage playlists. Assign episodes during upload.
+        <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] gradient-text inline-block">
+          Learning Series Playlists
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Create playlists, then add and reorder episodes within them.
         </p>
       </div>
       <PlaylistManager playlists={enriched} />

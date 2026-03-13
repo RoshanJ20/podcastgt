@@ -4,6 +4,19 @@ const nextConfig: NextConfig = {
   // Standalone output for Docker deployment
   output: 'standalone',
 
+  // Required for react-pdf (pdfjs-dist uses .mjs worker)
+  turbopack: {
+    resolveAlias: {
+      canvas: './empty-module.ts',
+    },
+  },
+
+  webpack: (config) => {
+    // Prevent canvas from being bundled (not needed for PDF rendering)
+    config.resolve.alias.canvas = false
+    return config
+  },
+
   images: {
     remotePatterns: [
       {

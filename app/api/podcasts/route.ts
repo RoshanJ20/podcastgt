@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   const year = searchParams.get('year')
   const playlistId = searchParams.get('playlist_id')
   const tags = searchParams.get('tags')
+  const unassigned = searchParams.get('unassigned')
 
   let query = supabase
     .from('podcasts')
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
   if (year) query = query.eq('year', parseInt(year))
   if (playlistId) query = query.eq('playlist_id', playlistId)
   if (tags) query = query.overlaps('tags', tags.split(','))
+  if (unassigned === 'true') query = query.is('playlist_id', null)
 
   const { data, error } = await query
 
