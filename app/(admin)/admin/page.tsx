@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Headphones, ListMusic, Mic, BookOpen } from 'lucide-react'
+import { Headphones, GitBranch, Mic, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { PodcastTable } from '@/components/admin/PodcastTable'
 import type { Podcast } from '@/lib/supabase/types'
@@ -8,15 +8,15 @@ import type { Podcast } from '@/lib/supabase/types'
 export default async function AdminDashboard() {
   const supabase = await createClient()
 
-  const [{ count: podcastCount }, { count: playlistCount }, { data: podcasts }] = await Promise.all([
+  const [{ count: podcastCount }, { count: learningPathCount }, { data: podcasts }] = await Promise.all([
     supabase.from('podcasts').select('*', { count: 'exact', head: true }),
-    supabase.from('playlists').select('*', { count: 'exact', head: true }),
+    supabase.from('learning_graphs').select('*', { count: 'exact', head: true }),
     supabase.from('podcasts').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: false }),
   ])
 
   const stats = [
     { label: 'Total Bulletins', value: podcastCount ?? 0, icon: Headphones, color: '#60A5FA', href: '#bulletins' },
-    { label: 'Learning Playlists', value: playlistCount ?? 0, icon: ListMusic, color: '#38BDF8', href: '/admin/playlists' },
+    { label: 'Learning Paths', value: learningPathCount ?? 0, icon: GitBranch, color: '#38BDF8', href: '/admin/learning-graphs' },
   ]
 
   return (
@@ -62,19 +62,19 @@ export default async function AdminDashboard() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/admin/playlists">
+        <Link href="/admin/learning-graphs">
           <Card className="glass-card hover-lift cursor-pointer group">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-[family-name:var(--font-heading)]">
                 <div className="p-2 rounded-lg bg-[#38BDF8]/15 group-hover:bg-[#38BDF8]/25 transition-colors">
                   <BookOpen className="h-5 w-5 text-[#38BDF8]" />
                 </div>
-                Create Learning Series
+                Create Learning Path
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Build a playlist of episodes for structured learning.
+                Build a structured learning path — linear or visual graph.
               </p>
             </CardContent>
           </Card>

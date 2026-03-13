@@ -2,10 +2,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ListMusic } from 'lucide-react'
-import Link from 'next/link'
 import { PlayerProvider, usePodcastPlayer } from './PlayerContext'
 import { AudioPlayer } from './AudioPlayer'
 import { TranscriptViewer } from './TranscriptViewer'
@@ -15,7 +12,7 @@ import { DOMAIN_COLORS } from '@/lib/supabase/types'
 import type { Podcast, TranscriptSegment } from '@/lib/supabase/types'
 
 interface Props {
-  podcast: Podcast & { playlist?: { id: string; title: string } | null }
+  podcast: Podcast
   isLoggedIn: boolean
 }
 
@@ -93,18 +90,6 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
             </TabsContent>
           </Tabs>
         </div>
-
-        {/* Playlist link */}
-        {podcast.playlist && (
-          <Card className="glass-card hover:border-[#60A5FA]/20 transition-colors">
-            <CardContent className="pt-4">
-              <Link href={`/playlist/${podcast.playlist.id}`} className="flex items-center gap-2 text-sm hover:text-[#60A5FA] transition-colors">
-                <ListMusic className="h-4 w-4 text-[#60A5FA]" />
-                <span>Part of: <span className="font-medium">{podcast.playlist.title}</span></span>
-              </Link>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Bulletin */}
         {podcast.bulletin_url && (

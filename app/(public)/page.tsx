@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { PodcastCard } from '@/components/library/PodcastCard'
+import { LearningPathCard } from '@/components/learning-path/LearningPathCard'
 import { DomainFilter } from '@/components/library/DomainFilter'
 import { Suspense } from 'react'
-import { Headphones } from 'lucide-react'
-import type { Podcast, Domain } from '@/lib/supabase/types'
+import { Headphones, GitBranch } from 'lucide-react'
+import type { Podcast, LearningGraph, Domain } from '@/lib/supabase/types'
 
 interface PageProps {
   searchParams: Promise<{ domain?: string }>
@@ -18,11 +19,26 @@ async function PodcastsContent({ domain }: { domain?: string }) {
     .eq('content_type', 'technical')
     .order('sort_order', { ascending: true })
 
+  let graphQuery = supabase
+    .from('learning_graphs')
+    .select('*, node_count:learning_graph_nodes(count)')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+
   if (domain) {
     podcastQuery = podcastQuery.eq('domain', domain as Domain)
+    graphQuery = graphQuery.eq('domain', domain as Domain)
   }
 
-  const { data: podcasts } = await podcastQuery
+  const [{ data: podcasts }, { data: graphs }] = await Promise.all([
+    podcastQuery,
+    graphQuery,
+  ])
+
+  const enrichedGraphs = (graphs ?? []).map((g) => ({
+    ...g,
+    node_count: (g.node_count as unknown as { count: number }[])?.[0]?.count ?? 0,
+  })) as LearningGraph[]
 
   return (
     <section>
@@ -44,6 +60,28 @@ async function PodcastsContent({ domain }: { domain?: string }) {
       ) : (
         <p className="text-muted-foreground text-sm py-8 text-center glass-card rounded-lg">
           No bulletins yet{domain ? ` for ${domain}` : ''}.
+        </p>
+      )}
+
+      {/* Learning Paths */}
+      <div className="flex items-center justify-between mb-5 mt-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-[#38BDF8]/15">
+            <GitBranch className="h-5 w-5 text-[#38BDF8]" />
+          </div>
+          <h2 className="text-xl font-semibold font-[family-name:var(--font-heading)]">Learning Paths</h2>
+        </div>
+        <span className="text-sm text-muted-foreground">{enrichedGraphs.length} paths</span>
+      </div>
+      {enrichedGraphs.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {enrichedGraphs.map((g) => (
+            <LearningPathCard key={g.id} graph={g} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-sm py-8 text-center glass-card rounded-lg">
+          No learning paths yet{domain ? ` for ${domain}` : ''}.
         </p>
       )}
     </section>

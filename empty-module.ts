@@ -1,1 +1,2 @@
-export default null
+const emptyModule = null
+export default emptyModule

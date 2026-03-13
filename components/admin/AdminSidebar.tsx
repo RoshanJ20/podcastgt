@@ -18,10 +18,10 @@ import { useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
   Upload,
-  ListMusic,
   Users,
   Headphones,
   LogOut,
+  GitBranch,
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -36,7 +36,7 @@ interface AdminSidebarProps {
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/upload', label: 'Upload Bulletin', icon: Upload },
-  { href: '/admin/playlists', label: 'Playlists', icon: ListMusic },
+  { href: '/admin/learning-graphs', label: 'Learning Paths', icon: GitBranch },
 ]
 
 export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {

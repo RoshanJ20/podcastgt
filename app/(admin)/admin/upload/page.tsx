@@ -1,13 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { UploadForm } from '@/components/admin/UploadForm'
 
-export default async function UploadPage() {
-  const supabase = await createClient()
-  const { data: playlists } = await supabase
-    .from('playlists')
-    .select('id, title')
-    .order('title')
-
+export default function UploadPage() {
   return (
     <div className="space-y-6">
       <div>
@@ -16,7 +9,7 @@ export default async function UploadPage() {
           Add a new audio bulletin to the library.
         </p>
       </div>
-      <UploadForm playlists={playlists ?? []} />
+      <UploadForm />
     </div>
   )
 }
