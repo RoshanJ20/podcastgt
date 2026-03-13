@@ -29,7 +29,10 @@ jobs:
 
       - name: Login to Azure Container Registry
         run: |
-          az acr login --name ${{ secrets.ACR_LOGIN_SERVER }}
+          # az acr login expects just the name (e.g. "myacr"), not the full
+          # server URL ("myacr.azurecr.io"), so strip the domain suffix.
+          ACR_NAME=$(echo "${{ secrets.ACR_LOGIN_SERVER }}" | cut -d. -f1)
+          az acr login --name "$ACR_NAME"
 
       - name: Build and push Docker image
         run: |
