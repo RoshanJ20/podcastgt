@@ -10,7 +10,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('podcasts')
-    .select('*, playlist:playlists(*), transcript:transcripts(id, full_text, segments)')
+    .select('*, transcript:transcripts(id, full_text, segments)')
     .eq('id', id)
     .single()
 

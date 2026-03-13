@@ -35,14 +35,12 @@ const schema = z.object({
   domain: z.string().min(1, 'Domain is required'),
   year: z.number().int().min(2000).max(2100),
   content_type: z.enum(['technical', 'learning_series']),
-  playlist_id: z.string().optional(),
   tags: z.array(z.string()),
 })
 
 type FormValues = z.infer<typeof schema>
 
 interface UploadFormProps {
-  playlists?: { id: string; title: string }[]
   editPodcast?: {
     id: string
     title: string
@@ -50,9 +48,9 @@ interface UploadFormProps {
     domain: Domain
     year: number
     content_type: ContentType
-    playlist_id: string | null
     tags: string[]
   }
+  onSuccess?: (podcast: { id: string; title: string; thumbnail_url: string | null; domain: string }) => void
 }
 
 const STEPS = [
@@ -61,7 +59,7 @@ const STEPS = [
   { label: 'Review', number: 3 },
 ]
 
-export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
+export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [tagInput, setTagInput] = useState('')
@@ -91,7 +89,6 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
           domain: editPodcast.domain,
           year: editPodcast.year,
           content_type: editPodcast.content_type,
-          playlist_id: editPodcast.playlist_id ?? undefined,
           tags: editPodcast.tags,
         }
       : {
@@ -184,8 +181,12 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
       }
 
       toast.success(editPodcast ? 'Podcast updated!' : 'Podcast uploaded!')
-      router.push('/admin')
-      router.refresh()
+      if (onSuccess) {
+        onSuccess(podcast)
+      } else {
+        router.push('/admin')
+        router.refresh()
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -321,30 +322,6 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                   </FormItem>
                 )}
               />
-
-              {contentType === 'learning_series' && playlists.length > 0 && (
-                <FormField
-                  name="playlist_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Add to Playlist</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select playlist (optional)" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {playlists.map((p) => (
-                            <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
 
               {/* Tags */}
               <div className="space-y-2">

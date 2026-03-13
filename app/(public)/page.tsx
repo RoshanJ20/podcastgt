@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { PodcastCard } from '@/components/library/PodcastCard'
-import { PlaylistCard } from '@/components/library/PlaylistCard'
+import { LearningPathCard } from '@/components/learning-path/LearningPathCard'
 import { DomainFilter } from '@/components/library/DomainFilter'
 import { Suspense } from 'react'
-import { Headphones, BookOpen } from 'lucide-react'
-import type { Podcast, Playlist, Domain } from '@/lib/supabase/types'
+import { Headphones, GitBranch } from 'lucide-react'
+import type { Podcast, LearningGraph, Domain } from '@/lib/supabase/types'
 
 interface PageProps {
   searchParams: Promise<{ domain?: string }>
@@ -19,25 +19,26 @@ async function LibraryContent({ domain }: { domain?: string }) {
     .eq('content_type', 'technical')
     .order('sort_order', { ascending: true })
 
-  let playlistQuery = supabase
-    .from('playlists')
-    .select('*, episode_count:podcasts(count)')
-    .order('sort_order', { ascending: true })
+  let graphQuery = supabase
+    .from('learning_graphs')
+    .select('*, node_count:learning_graph_nodes(count)')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
 
   if (domain) {
     podcastQuery = podcastQuery.eq('domain', domain as Domain)
-    playlistQuery = playlistQuery.eq('domain', domain as Domain)
+    graphQuery = graphQuery.eq('domain', domain as Domain)
   }
 
-  const [{ data: podcasts }, { data: playlists }] = await Promise.all([
+  const [{ data: podcasts }, { data: graphs }] = await Promise.all([
     podcastQuery,
-    playlistQuery,
+    graphQuery,
   ])
 
-  const enrichedPlaylists = (playlists ?? []).map((p) => ({
-    ...p,
-    episode_count: (p.episode_count as unknown as { count: number }[])?.[0]?.count ?? 0,
-  })) as Playlist[]
+  const enrichedGraphs = (graphs ?? []).map((g) => ({
+    ...g,
+    node_count: (g.node_count as unknown as { count: number }[])?.[0]?.count ?? 0,
+  })) as LearningGraph[]
 
   return (
     <div className="space-y-12">
@@ -50,7 +51,7 @@ async function LibraryContent({ domain }: { domain?: string }) {
             </div>
             <h2 className="text-xl font-semibold font-[family-name:var(--font-heading)]">Technical Content</h2>
           </div>
-          <span className="text-sm text-muted-foreground">{podcasts?.length ?? 0} podcasts</span>
+          <span className="text-sm text-muted-foreground">{podcasts?.length ?? 0} bulletins</span>
         </div>
         {podcasts && podcasts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -65,26 +66,26 @@ async function LibraryContent({ domain }: { domain?: string }) {
         )}
       </section>
 
-      {/* Learning Series */}
+      {/* Learning Paths */}
       <section>
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-[#3B82F6]/15">
-              <BookOpen className="h-5 w-5 text-[#3B82F6]" />
+              <GitBranch className="h-5 w-5 text-[#3B82F6]" />
             </div>
-            <h2 className="text-xl font-semibold font-[family-name:var(--font-heading)]">Learning Series</h2>
+            <h2 className="text-xl font-semibold font-[family-name:var(--font-heading)]">Learning Paths</h2>
           </div>
-          <span className="text-sm text-muted-foreground">{enrichedPlaylists.length} playlists</span>
+          <span className="text-sm text-muted-foreground">{enrichedGraphs.length} paths</span>
         </div>
-        {enrichedPlaylists.length > 0 ? (
+        {enrichedGraphs.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {enrichedPlaylists.map((p) => (
-              <PlaylistCard key={p.id} playlist={p} />
+            {enrichedGraphs.map((g) => (
+              <LearningPathCard key={g.id} graph={g} />
             ))}
           </div>
         ) : (
           <p className="text-muted-foreground text-sm py-8 text-center glass-card rounded-lg">
-            No learning series yet{domain ? ` for ${domain}` : ''}.
+            No learning paths yet{domain ? ` for ${domain}` : ''}.
           </p>
         )}
       </section>

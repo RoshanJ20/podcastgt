@@ -212,3 +212,12 @@
     box-shadow: 0 0 20px oklch(0.65 0.24 285 / 15%) inset !important;
   }
 }
+
+/* React Flow handle fix — must be OUTSIDE @layer to override React Flow's unlayered CSS */
+.react-flow__handle {
+  pointer-events: all !important;
+  z-index: 5;
+}
+.react-flow__node {
+  pointer-events: all;
+}

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Headphones, ListMusic, Mic, BookOpen } from 'lucide-react'
+import { Headphones, GitBranch, Mic, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { PodcastTable } from '@/components/admin/PodcastTable'
 import type { Podcast } from '@/lib/supabase/types'
@@ -8,15 +8,15 @@ import type { Podcast } from '@/lib/supabase/types'
 export default async function AdminDashboard() {
   const supabase = await createClient()
 
-  const [{ count: podcastCount }, { count: playlistCount }, { data: podcasts }] = await Promise.all([
+  const [{ count: podcastCount }, { count: learningPathCount }, { data: podcasts }] = await Promise.all([
     supabase.from('podcasts').select('*', { count: 'exact', head: true }),
-    supabase.from('playlists').select('*', { count: 'exact', head: true }),
+    supabase.from('learning_graphs').select('*', { count: 'exact', head: true }),
     supabase.from('podcasts').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: false }),
   ])
 
   const stats = [
-    { label: 'Total Podcasts', value: podcastCount ?? 0, icon: Headphones, color: '#8B5CF6' },
-    { label: 'Learning Playlists', value: playlistCount ?? 0, icon: ListMusic, color: '#3B82F6' },
+    { label: 'Total Bulletins', value: podcastCount ?? 0, icon: Headphones, color: '#8B5CF6' },
+    { label: 'Learning Paths', value: learningPathCount ?? 0, icon: GitBranch, color: '#3B82F6' },
   ]
 
   return (
@@ -50,29 +50,29 @@ export default async function AdminDashboard() {
                 <div className="p-2 rounded-lg bg-[#8B5CF6]/15 group-hover:bg-[#8B5CF6]/25 transition-colors">
                   <Mic className="h-5 w-5 text-[#8B5CF6]" />
                 </div>
-                Upload New Podcast
+                Upload New Bulletin
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Add a new audio podcast with title, description, domain, and files.
+                Add a new audio bulletin with title, description, domain, and files.
               </p>
             </CardContent>
           </Card>
         </Link>
-        <Link href="/admin/playlists">
+        <Link href="/admin/learning-graphs">
           <Card className="glass-card hover-lift cursor-pointer group">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-[family-name:var(--font-heading)]">
                 <div className="p-2 rounded-lg bg-[#3B82F6]/15 group-hover:bg-[#3B82F6]/25 transition-colors">
                   <BookOpen className="h-5 w-5 text-[#3B82F6]" />
                 </div>
-                Create Learning Series
+                Create Learning Path
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Build a playlist of episodes for structured learning.
+                Build a structured learning path — linear or visual graph.
               </p>
             </CardContent>
           </Card>
@@ -81,7 +81,7 @@ export default async function AdminDashboard() {
 
       {/* All Podcasts table */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">All Podcasts</h2>
+        <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">All Bulletins</h2>
         <p className="text-sm text-muted-foreground -mt-1">Drag rows to reorder. Click edit or delete to manage.</p>
         <PodcastTable initialPodcasts={(podcasts as Podcast[]) ?? []} />
       </div>

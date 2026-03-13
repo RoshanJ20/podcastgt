@@ -17,18 +17,6 @@ export const CONTENT_TYPES: { value: ContentType; label: string }[] = [
   { value: 'learning_series', label: 'Learning Series' },
 ]
 
-export interface Playlist {
-  id: string
-  title: string
-  description: string | null
-  domain: Domain
-  year: number
-  thumbnail_url: string | null
-  created_at: string
-  // joined
-  episode_count?: number
-}
-
 export interface Podcast {
   id: string
   title: string
@@ -41,13 +29,10 @@ export interface Podcast {
   audio_long_url: string | null
   bulletin_url: string | null
   content_type: ContentType
-  playlist_id: string | null
-  episode_order: number | null
   sort_order: number
   created_at: string
   updated_at: string
   // joined
-  playlist?: Playlist | null
   transcript?: Transcript | null
 }
 
@@ -84,4 +69,49 @@ export interface UserRoleRecord {
   created_at: string
   // joined
   email?: string
+}
+
+// Learning Graphs
+export type GraphNodeType = 'default' | 'start' | 'milestone' | 'end'
+export const GRAPH_NODE_TYPES: GraphNodeType[] = ['default', 'start', 'milestone', 'end']
+
+export type PathType = 'linear' | 'graph'
+
+export interface LearningGraph {
+  id: string
+  title: string
+  description: string | null
+  domain: Domain
+  path_type: PathType
+  is_published: boolean
+  thumbnail_url: string | null
+  created_at: string
+  updated_at: string
+  // joined
+  node_count?: number
+  nodes?: LearningGraphNode[]
+  edges?: LearningGraphEdge[]
+}
+
+export interface LearningGraphNode {
+  id: string
+  graph_id: string
+  podcast_id: string
+  position_x: number
+  position_y: number
+  label: string | null
+  node_type: GraphNodeType
+  sort_order: number
+  created_at: string
+  // joined
+  podcast?: Pick<Podcast, 'id' | 'title' | 'thumbnail_url' | 'domain' | 'description' | 'audio_short_url' | 'audio_long_url' | 'bulletin_url'>
+}
+
+export interface LearningGraphEdge {
+  id: string
+  graph_id: string
+  source_node_id: string
+  target_node_id: string
+  label: string | null
+  created_at: string
 }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Headphones, Search, Settings } from 'lucide-react'
+import { Headphones, Search, Settings, GitBranch } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function PublicNav() {
@@ -31,6 +31,18 @@ export function PublicNav() {
             )}
           >
             Library
+          </Link>
+          <Link
+            href="/learning-path"
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
+              pathname?.startsWith('/learning-path')
+                ? 'text-white bg-gradient-to-r from-[#8B5CF6] to-[#6366F1]'
+                : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+            )}
+          >
+            <GitBranch className="h-3.5 w-3.5" />
+            Learning Paths
           </Link>
           <Link
             href="/search"
