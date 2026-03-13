@@ -15,30 +15,32 @@ export default async function AdminDashboard() {
   ])
 
   const stats = [
-    { label: 'Total Podcasts', value: podcastCount ?? 0, icon: Headphones, color: '#8B5CF6' },
-    { label: 'Learning Playlists', value: playlistCount ?? 0, icon: ListMusic, color: '#3B82F6' },
+    { label: 'Total Bulletins', value: podcastCount ?? 0, icon: Headphones, color: '#60A5FA', href: '#bulletins' },
+    { label: 'Learning Playlists', value: playlistCount ?? 0, icon: ListMusic, color: '#38BDF8', href: '/admin/playlists' },
   ]
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] gradient-text inline-block">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Manage your podcast content</p>
+        <p className="text-muted-foreground mt-1">Manage your audio content</p>
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-        {stats.map(({ label, value, icon: Icon, color }) => (
-          <Card key={label} className="glass-card hover-lift">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
-              <div className="p-2 rounded-lg" style={{ background: `${color}20` }}>
-                <Icon className="h-4 w-4" style={{ color }} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold font-[family-name:var(--font-heading)]">{value}</p>
-            </CardContent>
-          </Card>
+        {stats.map(({ label, value, icon: Icon, color, href }) => (
+          <Link key={label} href={href}>
+            <Card className="glass-card hover-lift cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+                <div className="p-2 rounded-lg" style={{ background: `${color}20` }}>
+                  <Icon className="h-4 w-4" style={{ color }} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold font-[family-name:var(--font-heading)]">{value}</p>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
@@ -47,15 +49,15 @@ export default async function AdminDashboard() {
           <Card className="glass-card hover-lift cursor-pointer group">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-[family-name:var(--font-heading)]">
-                <div className="p-2 rounded-lg bg-[#8B5CF6]/15 group-hover:bg-[#8B5CF6]/25 transition-colors">
-                  <Mic className="h-5 w-5 text-[#8B5CF6]" />
+                <div className="p-2 rounded-lg bg-[#60A5FA]/15 group-hover:bg-[#60A5FA]/25 transition-colors">
+                  <Mic className="h-5 w-5 text-[#60A5FA]" />
                 </div>
-                Upload New Podcast
+                Upload New Bulletin
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Add a new audio podcast with title, description, domain, and files.
+                Add a new audio bulletin with title, description, domain, and files.
               </p>
             </CardContent>
           </Card>
@@ -64,8 +66,8 @@ export default async function AdminDashboard() {
           <Card className="glass-card hover-lift cursor-pointer group">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-[family-name:var(--font-heading)]">
-                <div className="p-2 rounded-lg bg-[#3B82F6]/15 group-hover:bg-[#3B82F6]/25 transition-colors">
-                  <BookOpen className="h-5 w-5 text-[#3B82F6]" />
+                <div className="p-2 rounded-lg bg-[#38BDF8]/15 group-hover:bg-[#38BDF8]/25 transition-colors">
+                  <BookOpen className="h-5 w-5 text-[#38BDF8]" />
                 </div>
                 Create Learning Series
               </CardTitle>
@@ -80,8 +82,8 @@ export default async function AdminDashboard() {
       </div>
 
       {/* All Podcasts table */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">All Podcasts</h2>
+      <div id="bulletins" className="space-y-3">
+        <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">All Bulletins</h2>
         <p className="text-sm text-muted-foreground -mt-1">Drag rows to reorder. Click edit or delete to manage.</p>
         <PodcastTable initialPodcasts={(podcasts as Podcast[]) ?? []} />
       </div>

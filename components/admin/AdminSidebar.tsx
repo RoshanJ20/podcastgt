@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/utils'
 
 interface AdminSidebarProps {
@@ -34,7 +35,7 @@ interface AdminSidebarProps {
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/upload', label: 'Upload Podcast', icon: Upload },
+  { href: '/admin/upload', label: 'Upload Bulletin', icon: Upload },
   { href: '/admin/playlists', label: 'Playlists', icon: ListMusic },
 ]
 
@@ -52,7 +53,7 @@ export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {
     <Sidebar>
       <SidebarHeader className="border-b p-4">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="bg-gradient-to-br from-[#8B5CF6] to-[#3B82F6] p-1.5 rounded-lg">
+          <div className="bg-gradient-to-br from-[#60A5FA] to-[#38BDF8] p-1.5 rounded-lg">
             <Headphones className="h-4 w-4 text-white" />
           </div>
           <span className="font-semibold gradient-text font-[family-name:var(--font-heading)]">Podcast Hub</span>
@@ -114,6 +115,7 @@ export function AdminSidebar({ role, userEmail }: AdminSidebarProps) {
             <p className="text-xs font-medium truncate">{userEmail}</p>
             <p className="text-xs text-muted-foreground capitalize">{role}</p>
           </div>
+          <ThemeToggle />
           <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out" className="hover-glow">
             <LogOut className="h-4 w-4" />
           </Button>

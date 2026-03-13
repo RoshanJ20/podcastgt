@@ -41,8 +41,8 @@ export function BulletinViewer({ url }: BulletinViewerProps) {
   return (
     <div className="rounded-lg glass-card overflow-hidden">
       <div className="flex items-center gap-3 p-4">
-        <div className="p-2 rounded-lg bg-[#3B82F6]/15">
-          <FileText className="h-5 w-5 text-[#3B82F6]" />
+        <div className="p-2 rounded-lg bg-[#38BDF8]/15">
+          <FileText className="h-5 w-5 text-[#38BDF8]" />
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium">Bulletin</p>
@@ -55,7 +55,7 @@ export function BulletinViewer({ url }: BulletinViewerProps) {
         <div className="flex gap-2">
           <button
             onClick={() => setExpanded(!expanded)}
-            className="px-4 py-2 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#8B5CF6]/30 transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#60A5FA]/30 transition-all flex items-center gap-1.5"
           >
             {expanded ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             {expanded ? 'Hide' : 'View'}
@@ -104,7 +104,7 @@ export function BulletinViewer({ url }: BulletinViewerProps) {
               onLoadSuccess={onDocumentLoadSuccess}
               loading={
                 <div className="flex items-center justify-center py-20">
-                  <Loader2 className="h-6 w-6 animate-spin text-[#8B5CF6]" />
+                  <Loader2 className="h-6 w-6 animate-spin text-[#60A5FA]" />
                 </div>
               }
               error={
@@ -115,7 +115,7 @@ export function BulletinViewer({ url }: BulletinViewerProps) {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-[#8B5CF6] underline mt-1"
+                    className="text-sm text-[#60A5FA] underline mt-1"
                   >
                     Open in new tab
                   </a>

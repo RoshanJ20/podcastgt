@@ -54,7 +54,7 @@ export default function SearchPage() {
       {/* Header */}
       <div className="text-center space-y-3">
         <div className="flex justify-center">
-          <div className="bg-gradient-to-br from-[#8B5CF6] to-[#3B82F6] p-3.5 rounded-2xl shadow-lg glow-primary">
+          <div className="bg-gradient-to-br from-[#60A5FA] to-[#38BDF8] p-3.5 rounded-2xl shadow-lg glow-primary">
             <Sparkles className="h-7 w-7 text-white" />
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function SearchPage() {
               <button
                 key={q}
                 onClick={() => setQuery(q)}
-                className="text-sm px-3.5 py-1.5 rounded-full border border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/10 hover:border-[#8B5CF6]/50 text-foreground/80 transition-all"
+                className="text-sm px-3.5 py-1.5 rounded-full border border-[#60A5FA]/30 hover:bg-[#60A5FA]/10 hover:border-[#60A5FA]/50 text-foreground/80 transition-all"
               >
                 {q}
               </button>
@@ -115,8 +115,8 @@ export default function SearchPage() {
       {searched && (
         <div className="space-y-4">
           {message && (
-            <div className="text-sm text-muted-foreground bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 rounded-lg p-4 flex items-start gap-2">
-              <Sparkles className="h-4 w-4 mt-0.5 shrink-0 text-[#8B5CF6]" />
+            <div className="text-sm text-muted-foreground bg-[#60A5FA]/10 border border-[#60A5FA]/20 rounded-lg p-4 flex items-start gap-2">
+              <Sparkles className="h-4 w-4 mt-0.5 shrink-0 text-[#60A5FA]" />
               <p>{message}</p>
             </div>
           )}
@@ -127,7 +127,7 @@ export default function SearchPage() {
                 Found {results.length} result{results.length !== 1 ? 's' : ''}
               </p>
               {results.map((result, i) => (
-                <Card key={i} className="glass-card hover:border-[#8B5CF6]/20 transition-colors">
+                <Card key={i} className="glass-card hover:border-[#60A5FA]/20 transition-colors">
                   <CardContent className="pt-4">
                     <div className="flex items-start gap-3">
                       {result.podcast_thumbnail && (
@@ -145,7 +145,7 @@ export default function SearchPage() {
                             </span>
                           )}
                           {result.timestamp_seconds !== undefined && (
-                            <span className="flex items-center gap-1 text-xs text-[#8B5CF6] font-medium">
+                            <span className="flex items-center gap-1 text-xs text-[#60A5FA] font-medium">
                               <Clock className="h-3 w-3" />
                               {formatTime(result.timestamp_seconds)}
                             </span>

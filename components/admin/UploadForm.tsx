@@ -53,6 +53,10 @@ interface UploadFormProps {
     playlist_id: string | null
     tags: string[]
   }
+  /** Called after a successful upload (e.g. to close a dialog) */
+  onSuccess?: () => void
+  /** Pre-select a playlist and lock content_type to learning_series */
+  defaultPlaylistId?: string
 }
 
 const STEPS = [
@@ -61,7 +65,7 @@ const STEPS = [
   { label: 'Review', number: 3 },
 ]
 
-export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
+export function UploadForm({ playlists = [], editPodcast, onSuccess, defaultPlaylistId }: UploadFormProps) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [tagInput, setTagInput] = useState('')
@@ -96,7 +100,8 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
         }
       : {
           year: new Date().getFullYear(),
-          content_type: 'technical',
+          content_type: defaultPlaylistId ? 'learning_series' : 'technical',
+          playlist_id: defaultPlaylistId,
           tags: [],
         },
   })
@@ -169,7 +174,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
 
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error ?? 'Failed to save podcast')
+        throw new Error(err.error ?? 'Failed to save bulletin')
       }
 
       const podcast = await res.json()
@@ -183,9 +188,13 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
         })
       }
 
-      toast.success(editPodcast ? 'Podcast updated!' : 'Podcast uploaded!')
-      router.push('/admin')
-      router.refresh()
+      toast.success(editPodcast ? 'Bulletin updated!' : 'Bulletin uploaded!')
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        router.push('/admin')
+        router.refresh()
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -210,19 +219,19 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                 step === s.number
                   ? 'btn-gradient'
                   : step > s.number
-                    ? 'bg-[#8B5CF6]/15 text-[#A78BFA] cursor-pointer hover:bg-[#8B5CF6]/25'
+                    ? 'bg-[#60A5FA]/15 text-[#93C5FD] cursor-pointer hover:bg-[#60A5FA]/25'
                     : 'text-muted-foreground bg-white/5'
               }`}
             >
               <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                step > s.number ? 'bg-[#8B5CF6] text-white' : ''
+                step > s.number ? 'bg-[#60A5FA] text-white' : ''
               }`}>
                 {step > s.number ? <Check className="h-3 w-3" /> : s.number}
               </span>
               {s.label}
             </button>
             {i < STEPS.length - 1 && (
-              <div className={`h-px w-8 ${step > s.number ? 'bg-[#8B5CF6]' : 'bg-border'}`} />
+              <div className={`h-px w-8 ${step > s.number ? 'bg-[#60A5FA]' : 'bg-border'}`} />
             )}
           </div>
         ))}
@@ -234,8 +243,8 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
           {step === 1 && (
             <div className="glass-card rounded-xl p-6 space-y-5">
               <div>
-                <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">Podcast Details</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">Basic information about the podcast</p>
+                <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">Bulletin Details</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">Basic information about the bulletin</p>
               </div>
 
               <FormField
@@ -244,7 +253,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                   <FormItem>
                     <FormLabel>Title *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Podcast title" {...field} />
+                      <Input placeholder="Bulletin title" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -257,7 +266,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Brief overview of this podcast…" rows={3} {...field} />
+                      <Textarea placeholder="Brief overview of this bulletin…" rows={3} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -301,28 +310,30 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                 />
               </div>
 
-              <FormField
-                name="content_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content Type *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="technical">Technical Content</SelectItem>
-                        <SelectItem value="learning_series">Learning Series</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!defaultPlaylistId && (
+                <FormField
+                  name="content_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content Type *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="technical">Bulletin</SelectItem>
+                          <SelectItem value="learning_series">Learning Series</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
-              {contentType === 'learning_series' && playlists.length > 0 && (
+              {!defaultPlaylistId && contentType === 'learning_series' && playlists.length > 0 && (
                 <FormField
                   name="playlist_id"
                   render={({ field }) => (
@@ -361,14 +372,14 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                       }
                     }}
                   />
-                  <button type="button" onClick={addTag} className="px-4 py-2 rounded-lg border border-border text-sm hover-glow hover:border-[#8B5CF6]/30 transition-all">
+                  <button type="button" onClick={addTag} className="px-4 py-2 rounded-lg border border-border text-sm hover-glow hover:border-[#60A5FA]/30 transition-all">
                     Add
                   </button>
                 </div>
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {tags.map((tag: string) => (
-                      <Badge key={tag} variant="secondary" className="gap-1 cursor-pointer bg-[#8B5CF6]/15 text-[#A78BFA] hover:bg-[#8B5CF6]/25" onClick={() => removeTag(tag)}>
+                      <Badge key={tag} variant="secondary" className="gap-1 cursor-pointer bg-[#60A5FA]/15 text-[#93C5FD] hover:bg-[#60A5FA]/25" onClick={() => removeTag(tag)}>
                         {tag}
                         <X className="h-3 w-3" />
                       </Badge>
@@ -457,7 +468,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Content Type</p>
-                    <p className="font-medium">{values.content_type === 'learning_series' ? 'Learning Series' : 'Technical'}</p>
+                    <p className="font-medium">{values.content_type === 'learning_series' ? 'Learning Series' : 'Bulletin'}</p>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -472,7 +483,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                       <p className="text-xs text-muted-foreground mb-1">Tags</p>
                       <div className="flex flex-wrap gap-1">
                         {tags.map((tag: string) => (
-                          <Badge key={tag} variant="secondary" className="text-xs bg-[#8B5CF6]/15 text-[#A78BFA]">{tag}</Badge>
+                          <Badge key={tag} variant="secondary" className="text-xs bg-[#60A5FA]/15 text-[#93C5FD]">{tag}</Badge>
                         ))}
                       </div>
                     </div>
@@ -505,7 +516,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                         {progress !== undefined && progress < 100 && (
                           <div className="ml-auto w-20 h-1.5 rounded-full bg-white/10 overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#3B82F6] transition-all"
+                              className="h-full rounded-full bg-gradient-to-r from-[#60A5FA] to-[#38BDF8] transition-all"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -528,7 +539,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#8B5CF6]/30 transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#60A5FA]/30 transition-all"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Back
@@ -559,7 +570,7 @@ export function UploadForm({ playlists = [], editPodcast }: UploadFormProps) {
                   className="btn-gradient px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {editPodcast ? 'Save Changes' : 'Upload Podcast'}
+                  {editPodcast ? 'Save Changes' : 'Upload Bulletin'}
                 </button>
               )}
             </div>

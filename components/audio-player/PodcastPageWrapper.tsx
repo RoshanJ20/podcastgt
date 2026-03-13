@@ -38,7 +38,7 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#8B5CF6]/30 to-[#3B82F6]/20">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#60A5FA]/30 to-[#38BDF8]/20">
                 <span className="text-2xl font-bold text-white/30 font-[family-name:var(--font-heading)]">{podcast.domain}</span>
               </div>
             )}
@@ -60,7 +60,7 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
             {podcast.tags.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {podcast.tags.map((tag) => (
-                  <span key={tag} className="text-xs bg-[#8B5CF6]/15 text-[#A78BFA] px-2 py-0.5 rounded-full font-medium">
+                  <span key={tag} className="text-xs bg-[#60A5FA]/15 text-[#93C5FD] px-2 py-0.5 rounded-full font-medium">
                     {tag}
                   </span>
                 ))}
@@ -96,10 +96,10 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
 
         {/* Playlist link */}
         {podcast.playlist && (
-          <Card className="glass-card hover:border-[#8B5CF6]/20 transition-colors">
+          <Card className="glass-card hover:border-[#60A5FA]/20 transition-colors">
             <CardContent className="pt-4">
-              <Link href={`/playlist/${podcast.playlist.id}`} className="flex items-center gap-2 text-sm hover:text-[#8B5CF6] transition-colors">
-                <ListMusic className="h-4 w-4 text-[#8B5CF6]" />
+              <Link href={`/playlist/${podcast.playlist.id}`} className="flex items-center gap-2 text-sm hover:text-[#60A5FA] transition-colors">
+                <ListMusic className="h-4 w-4 text-[#60A5FA]" />
                 <span>Part of: <span className="font-medium">{podcast.playlist.title}</span></span>
               </Link>
             </CardContent>
