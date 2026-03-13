@@ -76,7 +76,7 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
   if (!activeUrl) {
     return (
       <div className="rounded-xl glass-card p-6 text-center text-sm text-muted-foreground">
-        No audio available for this podcast.
+        No audio available.
       </div>
     )
   }
@@ -139,7 +139,7 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
           className="cursor-pointer"
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span className="text-[#8B5CF6] font-medium">{formatTime(currentTime)}</span>
+          <span className="text-[#60A5FA] font-medium">{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>
       </div>

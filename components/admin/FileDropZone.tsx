@@ -94,7 +94,7 @@ export function FileDropZone({
         className={cn(
           'drop-zone rounded-xl p-6 cursor-pointer text-center transition-all',
           isDragOver && 'drop-zone-active',
-          files.length > 0 && 'border-[#8B5CF6]/20'
+          files.length > 0 && 'border-[#60A5FA]/20'
         )}
       >
         <input
@@ -122,9 +122,9 @@ export function FileDropZone({
           <div className="flex flex-col items-center gap-2">
             <div className={cn(
               'h-12 w-12 rounded-xl flex items-center justify-center transition-transform',
-              isDragOver ? 'bg-[#8B5CF6]/20 scale-110' : 'bg-[#8B5CF6]/10'
+              isDragOver ? 'bg-[#60A5FA]/20 scale-110' : 'bg-[#60A5FA]/10'
             )}>
-              <Icon className="h-6 w-6 text-[#8B5CF6]" />
+              <Icon className="h-6 w-6 text-[#60A5FA]" />
             </div>
             <div>
               <p className="text-sm font-medium">{label}</p>
@@ -144,7 +144,7 @@ export function FileDropZone({
               key={`${file.name}-${i}`}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 text-sm group"
             >
-              <Icon className="h-3.5 w-3.5 text-[#8B5CF6] shrink-0" />
+              <Icon className="h-3.5 w-3.5 text-[#60A5FA] shrink-0" />
               <span className="truncate flex-1">{file.name}</span>
               <span className="text-xs text-muted-foreground shrink-0">
                 {formatFileSize(file.size)}

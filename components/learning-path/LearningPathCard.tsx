@@ -7,7 +7,7 @@ import type { LearningGraph } from '@/lib/supabase/types'
 export function LearningPathCard({ graph }: { graph: LearningGraph }) {
   return (
     <Link href={`/learning-path/${graph.id}`}>
-      <Card className="group overflow-hidden transition-all duration-300 cursor-pointer h-full glass-card hover:border-[#3B82F6]/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#3B82F6]/10">
+      <Card className="group overflow-hidden transition-all duration-300 cursor-pointer h-full glass-card hover:border-[#38BDF8]/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#38BDF8]/10">
         <div className="relative aspect-square bg-muted overflow-hidden">
           {graph.thumbnail_url ? (
             <img
@@ -16,12 +16,12 @@ export function LearningPathCard({ graph }: { graph: LearningGraph }) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#3B82F6]/30 to-[#8B5CF6]/20">
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#38BDF8]/30 to-[#60A5FA]/20">
               <GitBranch className="h-12 w-12 text-white/30" />
             </div>
           )}
           {graph.node_count !== undefined && (
-            <div className="absolute bottom-2 right-2 bg-gradient-to-r from-[#8B5CF6] to-[#3B82F6] text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow-lg">
+            <div className="absolute bottom-2 right-2 bg-gradient-to-r from-[#60A5FA] to-[#38BDF8] text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow-lg">
               {graph.node_count} bulletins
             </div>
           )}
