@@ -47,15 +47,15 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#8B5CF6_0%,transparent_50%)] opacity-[0.07]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,#3B82F6_0%,transparent_50%)] opacity-[0.05]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#60A5FA_0%,transparent_50%)] opacity-[0.07]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,#38BDF8_0%,transparent_50%)] opacity-[0.05]" />
 
-      <Card className="w-full max-w-md glass-card shadow-2xl shadow-[#8B5CF6]/10 relative overflow-hidden">
-        <div className="h-1 w-full bg-gradient-to-r from-[#8B5CF6] via-[#6366F1] to-[#3B82F6]" />
+      <Card className="w-full max-w-md glass-card shadow-2xl shadow-[#60A5FA]/10 relative overflow-hidden">
+        <div className="h-1 w-full bg-gradient-to-r from-[#60A5FA] via-[#818CF8] to-[#38BDF8]" />
 
         <CardHeader className="text-center pt-8">
           <div className="flex justify-center mb-3">
-            <div className="bg-gradient-to-br from-[#8B5CF6] to-[#3B82F6] p-3 rounded-2xl shadow-lg glow-primary">
+            <div className="bg-gradient-to-br from-[#60A5FA] to-[#38BDF8] p-3 rounded-2xl shadow-lg glow-primary">
               <Headphones className="h-8 w-8 text-white" />
             </div>
           </div>

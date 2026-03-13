@@ -33,7 +33,7 @@ export function TranscriptViewer({ segments, fullText, currentTime, onSeek }: Tr
   if (segments.length === 0 && !fullText) {
     return (
       <div className="text-sm text-muted-foreground py-4 text-center">
-        No transcript available for this podcast.
+        No transcript available.
       </div>
     )
   }
@@ -59,7 +59,7 @@ export function TranscriptViewer({ segments, fullText, currentTime, onSeek }: Tr
               className={cn(
                 'w-full text-left text-sm leading-relaxed px-2 py-1 rounded transition-colors',
                 isActive
-                  ? 'bg-[#8B5CF6]/10 text-[#A78BFA] font-medium border-l-2 border-[#8B5CF6]'
+                  ? 'bg-[#60A5FA]/10 text-[#93C5FD] font-medium border-l-2 border-[#60A5FA]'
                   : 'text-muted-foreground hover:bg-white/5 hover:text-foreground border-l-2 border-transparent'
               )}
             >

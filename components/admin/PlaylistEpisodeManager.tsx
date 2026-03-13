@@ -3,7 +3,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
   GripVertical,
   Plus,
@@ -12,11 +18,10 @@ import {
   Music,
   ChevronUp,
   ChevronDown,
-  Search,
 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import { DOMAIN_COLORS } from '@/lib/supabase/types'
 import type { Domain } from '@/lib/supabase/types'
+import { UploadForm } from './UploadForm'
 
 interface Episode {
   id: string
@@ -24,14 +29,6 @@ interface Episode {
   domain: Domain
   year: number
   episode_order: number | null
-  thumbnail_url: string | null
-}
-
-interface UnassignedPodcast {
-  id: string
-  title: string
-  domain: Domain
-  year: number
   thumbnail_url: string | null
 }
 
@@ -44,13 +41,8 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [showAddPanel, setShowAddPanel] = useState(false)
-  const [unassigned, setUnassigned] = useState<UnassignedPodcast[]>([])
-  const [loadingUnassigned, setLoadingUnassigned] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [addingEpisodes, setAddingEpisodes] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const [uploadOpen, setUploadOpen] = useState(false)
 
   const fetchEpisodes = useCallback(async () => {
     setLoading(true)
@@ -70,58 +62,6 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
   useEffect(() => {
     fetchEpisodes()
   }, [fetchEpisodes])
-
-  const fetchUnassigned = async () => {
-    setLoadingUnassigned(true)
-    try {
-      const res = await fetch('/api/podcasts?content_type=learning_series&unassigned=true')
-      if (res.ok) {
-        const data = await res.json()
-        setUnassigned(data)
-      }
-    } catch {
-      toast.error('Failed to load available podcasts')
-    } finally {
-      setLoadingUnassigned(false)
-    }
-  }
-
-  const handleOpenAddPanel = () => {
-    setShowAddPanel(true)
-    setSelectedIds(new Set())
-    setSearchQuery('')
-    fetchUnassigned()
-  }
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  const handleAddSelected = async () => {
-    if (selectedIds.size === 0) return
-    setAddingEpisodes(true)
-    try {
-      const res = await fetch(`/api/playlists/${playlistId}/episodes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ podcast_ids: Array.from(selectedIds) }),
-      })
-      if (!res.ok) throw new Error('Failed to add episodes')
-      toast.success(`Added ${selectedIds.size} episode(s)`)
-      setShowAddPanel(false)
-      setSelectedIds(new Set())
-      await fetchEpisodes()
-    } catch {
-      toast.error('Failed to add episodes')
-    } finally {
-      setAddingEpisodes(false)
-    }
-  }
 
   const handleRemove = async (podcastId: string) => {
     try {
@@ -167,9 +107,10 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
     }
   }
 
-  const filteredUnassigned = unassigned.filter((p) =>
-    p.title.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const handleUploadSuccess = () => {
+    setUploadOpen(false)
+    fetchEpisodes()
+  }
 
   if (loading) {
     return (
@@ -197,15 +138,25 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
               Save Order
             </button>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleOpenAddPanel}
-            className="gap-1.5"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add Episodes
-          </Button>
+          <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+            <DialogTrigger
+              render={
+                <Button variant="outline" size="sm" className="gap-1.5" />
+              }
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Upload Episode
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Upload Episode to &ldquo;{playlistTitle}&rdquo;</DialogTitle>
+              </DialogHeader>
+              <UploadForm
+                defaultPlaylistId={playlistId}
+                onSuccess={handleUploadSuccess}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -213,14 +164,14 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
       {episodes.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground text-sm border border-dashed border-border rounded-lg">
           <Music className="h-8 w-8 mx-auto mb-2 opacity-40" />
-          No episodes yet. Click &ldquo;Add Episodes&rdquo; to get started.
+          No episodes yet. Click &ldquo;Upload Episode&rdquo; to get started.
         </div>
       ) : (
         <div className="space-y-1.5">
           {episodes.map((episode, index) => (
             <div
               key={episode.id}
-              className="flex items-center gap-3 p-3 rounded-lg glass-card group hover:border-[#8B5CF6]/20 transition-all"
+              className="flex items-center gap-3 p-3 rounded-lg glass-card group hover:border-[#60A5FA]/20 transition-all"
             >
               <div className="flex flex-col gap-0.5">
                 <button
@@ -240,7 +191,7 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
                 </button>
               </div>
 
-              <span className="text-xs font-bold text-[#8B5CF6] w-6 text-center">
+              <span className="text-xs font-bold text-[#60A5FA] w-6 text-center">
                 {index + 1}
               </span>
 
@@ -251,8 +202,8 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
                   className="h-10 w-10 rounded object-cover shrink-0"
                 />
               ) : (
-                <div className="h-10 w-10 rounded bg-[#8B5CF6]/10 flex items-center justify-center shrink-0">
-                  <Music className="h-4 w-4 text-[#8B5CF6]/50" />
+                <div className="h-10 w-10 rounded bg-[#60A5FA]/10 flex items-center justify-center shrink-0">
+                  <Music className="h-4 w-4 text-[#60A5FA]/50" />
                 </div>
               )}
 
@@ -276,103 +227,6 @@ export function PlaylistEpisodeManager({ playlistId, playlistTitle }: PlaylistEp
             </div>
           ))}
         </div>
-      )}
-
-      {/* Add episodes panel */}
-      {showAddPanel && (
-        <Card className="glass-card border-[#8B5CF6]/20">
-          <CardContent className="pt-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold">Add Learning Series Episodes</p>
-              <Button variant="ghost" size="icon" onClick={() => setShowAddPanel(false)} className="h-7 w-7">
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search podcasts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-
-            {loadingUnassigned ? (
-              <div className="flex items-center justify-center py-6 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Loading...
-              </div>
-            ) : filteredUnassigned.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                No unassigned learning series podcasts found.
-              </p>
-            ) : (
-              <div className="max-h-64 overflow-y-auto space-y-1">
-                {filteredUnassigned.map((podcast) => (
-                  <button
-                    key={podcast.id}
-                    onClick={() => toggleSelect(podcast.id)}
-                    className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-left transition-all ${
-                      selectedIds.has(podcast.id)
-                        ? 'bg-[#8B5CF6]/15 border border-[#8B5CF6]/30'
-                        : 'hover:bg-white/5 border border-transparent'
-                    }`}
-                  >
-                    <div
-                      className={`h-5 w-5 rounded border-2 flex items-center justify-center shrink-0 transition-all ${
-                        selectedIds.has(podcast.id)
-                          ? 'bg-[#8B5CF6] border-[#8B5CF6]'
-                          : 'border-muted-foreground/30'
-                      }`}
-                    >
-                      {selectedIds.has(podcast.id) && (
-                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
-
-                    {podcast.thumbnail_url ? (
-                      <img src={podcast.thumbnail_url} alt="" className="h-8 w-8 rounded object-cover shrink-0" />
-                    ) : (
-                      <div className="h-8 w-8 rounded bg-[#8B5CF6]/10 flex items-center justify-center shrink-0">
-                        <Music className="h-3 w-3 text-[#8B5CF6]/50" />
-                      </div>
-                    )}
-
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm truncate">{podcast.title}</p>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${DOMAIN_COLORS[podcast.domain]}`}>
-                          {podcast.domain}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{podcast.year}</span>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {selectedIds.size > 0 && (
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <span className="text-sm text-muted-foreground">
-                  {selectedIds.size} selected
-                </span>
-                <button
-                  onClick={handleAddSelected}
-                  disabled={addingEpisodes}
-                  className="btn-gradient px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center"
-                >
-                  {addingEpisodes && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
-                  Add to Playlist
-                </button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       )}
     </div>
   )

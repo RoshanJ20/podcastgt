@@ -12,7 +12,7 @@ export function PublicNav() {
     <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2.5 font-bold shrink-0 group">
-          <div className="bg-gradient-to-br from-[#8B5CF6] to-[#3B82F6] p-1.5 rounded-lg">
+          <div className="bg-gradient-to-br from-[#60A5FA] to-[#38BDF8] p-1.5 rounded-lg">
             <Headphones className="h-4 w-4 text-white" />
           </div>
           <span className="hidden sm:inline text-lg font-bold gradient-text font-[family-name:var(--font-heading)]">
@@ -26,7 +26,7 @@ export function PublicNav() {
             className={cn(
               'relative px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
               pathname === '/'
-                ? 'text-white bg-gradient-to-r from-[#8B5CF6] to-[#6366F1]'
+                ? 'text-white bg-gradient-to-r from-[#60A5FA] to-[#818CF8]'
                 : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
             )}
           >
@@ -37,7 +37,7 @@ export function PublicNav() {
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
               pathname === '/search'
-                ? 'text-white bg-gradient-to-r from-[#8B5CF6] to-[#6366F1]'
+                ? 'text-white bg-gradient-to-r from-[#60A5FA] to-[#818CF8]'
                 : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
             )}
           >

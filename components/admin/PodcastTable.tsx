@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 import { GripVertical, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -37,6 +38,7 @@ import Link from 'next/link'
 import type { Podcast } from '@/lib/supabase/types'
 
 function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: string) => void }) {
+  const router = useRouter()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: podcast.id,
   })
@@ -47,16 +49,25 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
     opacity: isDragging ? 0.5 : 1,
   }
 
+  const handleRowClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons, links, or drag handles
+    const target = e.target as HTMLElement
+    if (target.closest('button, a, [data-drag-handle]')) return
+    router.push(`/admin/edit/${podcast.id}`)
+  }
+
   return (
     <tr
       ref={setNodeRef}
       style={style}
-      className="border-b hover:bg-muted/50 transition-all duration-200 hover:translate-x-0.5"
+      className="border-b hover:bg-muted/50 transition-all duration-200 hover:translate-x-0.5 cursor-pointer"
+      onClick={handleRowClick}
     >
       <td className="p-3 w-8">
         <button
           {...attributes}
           {...listeners}
+          data-drag-handle
           className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
         >
           <GripVertical className="h-4 w-4" />
@@ -82,7 +93,7 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
       </td>
       <td className="p-3">
         <Badge variant={podcast.content_type === 'technical' ? 'default' : 'secondary'}>
-          {podcast.content_type === 'technical' ? 'Technical' : 'Learning'}
+          {podcast.content_type === 'technical' ? 'Bulletin' : 'Learning'}
         </Badge>
       </td>
       <td className="p-3">
@@ -112,7 +123,7 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete podcast?</AlertDialogTitle>
+                <AlertDialogTitle>Delete bulletin?</AlertDialogTitle>
                 <AlertDialogDescription>
                   &ldquo;{podcast.title}&rdquo; will be permanently removed. This cannot be undone.
                 </AlertDialogDescription>
@@ -174,9 +185,9 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
     const res = await fetch(`/api/podcasts/${id}`, { method: 'DELETE' })
     if (res.ok) {
       setPodcasts((prev) => prev.filter((p) => p.id !== id))
-      toast.success('Podcast deleted')
+      toast.success('Bulletin deleted')
     } else {
-      toast.error('Failed to delete podcast')
+      toast.error('Failed to delete bulletin')
     }
   }
 
@@ -204,7 +215,7 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
         </table>
         {podcasts.length === 0 && (
           <div className="p-8 text-center text-muted-foreground">
-            No podcasts yet. <Link href="/admin/upload" className="underline text-primary">Upload one</Link>.
+            No bulletins yet. <Link href="/admin/upload" className="underline text-primary">Upload one</Link>.
           </div>
         )}
       </div>

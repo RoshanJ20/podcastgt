@@ -187,7 +187,7 @@ export function BulkEpisodeUploader({ onComplete, playlistMeta }: BulkEpisodeUpl
             {episodes.map((ep, index) => (
               <div
                 key={ep.id}
-                className="flex items-center gap-2 p-2.5 rounded-lg glass-card group hover:border-[#8B5CF6]/20 transition-all"
+                className="flex items-center gap-2 p-2.5 rounded-lg glass-card group hover:border-[#60A5FA]/20 transition-all"
               >
                 {/* Reorder */}
                 <div className="flex flex-col gap-0">
@@ -210,12 +210,12 @@ export function BulkEpisodeUploader({ onComplete, playlistMeta }: BulkEpisodeUpl
                 </div>
 
                 {/* Episode number */}
-                <span className="text-xs font-bold text-[#8B5CF6] w-5 text-center shrink-0">
+                <span className="text-xs font-bold text-[#60A5FA] w-5 text-center shrink-0">
                   {index + 1}
                 </span>
 
                 {/* Audio icon */}
-                <Music className="h-4 w-4 text-[#8B5CF6]/50 shrink-0" />
+                <Music className="h-4 w-4 text-[#60A5FA]/50 shrink-0" />
 
                 {/* Editable title */}
                 <Input
@@ -255,12 +255,12 @@ export function BulkEpisodeUploader({ onComplete, playlistMeta }: BulkEpisodeUpl
       {uploading && (
         <div className="glass-card rounded-xl p-4 space-y-2">
           <div className="flex items-center gap-2 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin text-[#8B5CF6]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#60A5FA]" />
             <span>{progress.label}</span>
           </div>
           <div className="h-2 rounded-full bg-white/10 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#3B82F6] transition-all duration-300"
+              className="h-full rounded-full bg-gradient-to-r from-[#60A5FA] to-[#38BDF8] transition-all duration-300"
               style={{ width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%` }}
             />
           </div>

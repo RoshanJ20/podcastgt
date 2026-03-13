@@ -193,7 +193,7 @@ export function PlaylistManager({ playlists: initialPlaylists }: { playlists: Pl
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-5 py-2.5 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#8B5CF6]/30 transition-all flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#60A5FA]/30 transition-all flex items-center gap-2"
                   >
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderPlus className="h-4 w-4" />}
                     Create Empty Playlist
@@ -244,7 +244,7 @@ export function PlaylistManager({ playlists: initialPlaylists }: { playlists: Pl
           <p className="text-sm text-muted-foreground">No playlists yet.</p>
         )}
         {playlists.map((playlist) => (
-          <Card key={playlist.id} className={`glass-card hover-lift transition-all ${expandedId === playlist.id ? 'border-[#8B5CF6]/30' : ''}`}>
+          <Card key={playlist.id} className={`glass-card hover-lift transition-all ${expandedId === playlist.id ? 'border-[#60A5FA]/30' : ''}`}>
             <CardContent className="pt-4 space-y-0">
               {/* Playlist header row */}
               <div className="flex items-start gap-3">
@@ -264,7 +264,7 @@ export function PlaylistManager({ playlists: initialPlaylists }: { playlists: Pl
                   onClick={() => toggleExpand(playlist.id)}
                 >
                   <div className="flex items-center gap-2">
-                    <ListMusic className="h-4 w-4 text-[#8B5CF6] shrink-0" />
+                    <ListMusic className="h-4 w-4 text-[#60A5FA] shrink-0" />
                     <p className="font-medium truncate">{playlist.title}</p>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
