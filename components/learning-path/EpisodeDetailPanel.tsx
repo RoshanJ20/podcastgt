@@ -6,6 +6,7 @@ import { CheckCircle2, Circle, X, FileText, Headphones } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import type { EpisodeTranscript, GraphNodeType } from '@/lib/supabase/types'
+import { useListenTracker } from '@/hooks/use-listen-tracker'
 
 interface EpisodeDetailPanelProps {
   episode: {
@@ -17,6 +18,7 @@ interface EpisodeDetailPanelProps {
     nodeType?: GraphNodeType
   }
   episodeId?: string
+  graphId?: string
   isCompleted?: boolean
   isLoggedIn?: boolean
   onToggleComplete?: (episodeId: string) => void
@@ -32,12 +34,14 @@ const nodeTypeLabels: Partial<Record<GraphNodeType, { label: string; color: stri
 export function EpisodeDetailPanel({
   episode,
   episodeId,
+  graphId,
   isCompleted,
   isLoggedIn,
   onToggleComplete,
   onClose,
 }: EpisodeDetailPanelProps) {
   const nodeLabel = episode.nodeType ? nodeTypeLabels[episode.nodeType] : null
+  const listenTracker = useListenTracker({ episodeId, graphId })
 
   return (
     <div className="h-full flex flex-col bg-card/80 backdrop-blur-sm border-l border-border">
@@ -94,6 +98,8 @@ export function EpisodeDetailPanel({
               <AudioPlayer
                 shortUrl={null}
                 longUrl={episode.audioUrl}
+                onTimeUpdate={listenTracker.onTimeUpdate}
+                onPlay={listenTracker.onPlay}
               />
             </div>
           ) : (
