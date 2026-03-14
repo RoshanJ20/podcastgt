@@ -19,7 +19,6 @@ import {
   LayoutDashboard,
   Upload,
   Users,
-  Headphones,
   LogOut,
   GitBranch,
   Moon,
