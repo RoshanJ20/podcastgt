@@ -1,3 +1,13 @@
+/**
+ * @module PodcastsPage
+ *
+ * Public landing page displaying all bulletins and learning paths.
+ *
+ * Key responsibilities:
+ * - Fetches and displays bulletins filtered by optional domain parameter
+ * - Fetches and displays published learning paths with node counts
+ * - Renders a hero section, domain filter, and content grids
+ */
 import { createClient } from '@/lib/supabase/server'
 import { PodcastCard } from '@/components/library/PodcastCard'
 import { LearningPathCard } from '@/components/learning-path/LearningPathCard'
@@ -35,9 +45,9 @@ async function PodcastsContent({ domain }: { domain?: string }) {
     graphQuery,
   ])
 
-  const enrichedGraphs = (graphs ?? []).map((g) => ({
-    ...g,
-    node_count: (g.node_count as unknown as { count: number }[])?.[0]?.count ?? 0,
+  const enrichedGraphs = (graphs ?? []).map((graph) => ({
+    ...graph,
+    node_count: (graph.node_count as unknown as { count: number }[])?.[0]?.count ?? 0,
   })) as LearningGraph[]
 
   return (
@@ -53,8 +63,8 @@ async function PodcastsContent({ domain }: { domain?: string }) {
       </div>
       {podcasts && podcasts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {podcasts.map((p) => (
-            <PodcastCard key={p.id} podcast={p as Podcast} />
+          {podcasts.map((podcast) => (
+            <PodcastCard key={podcast.id} podcast={podcast as Podcast} />
           ))}
         </div>
       ) : (
@@ -75,8 +85,8 @@ async function PodcastsContent({ domain }: { domain?: string }) {
       </div>
       {enrichedGraphs.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {enrichedGraphs.map((g) => (
-            <LearningPathCard key={g.id} graph={g} />
+          {enrichedGraphs.map((graph) => (
+            <LearningPathCard key={graph.id} graph={graph} />
           ))}
         </div>
       ) : (

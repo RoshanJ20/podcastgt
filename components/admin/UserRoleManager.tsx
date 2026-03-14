@@ -1,3 +1,14 @@
+/**
+ * @module UserRoleManager
+ *
+ * Admin interface for assigning and viewing user roles (public, admin, superadmin).
+ *
+ * Key responsibilities:
+ * - Provides a form to assign roles to users by email
+ * - Fetches and displays all users with their current roles
+ * - Updates user roles optimistically via API calls
+ * - Displays role badges with color-coded severity
+ */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -37,7 +48,7 @@ export function UserRoleManager() {
 
   useEffect(() => {
     fetch('/api/users')
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then(setUsers)
       .finally(() => setLoading(false))
   }, [])
@@ -55,14 +66,15 @@ export function UserRoleManager() {
       if (!res.ok) throw new Error('Failed')
       const updated = await res.json()
       setUsers((prev) => {
-        const exists = prev.find((u) => u.user_id === updated.user_id)
+        const exists = prev.find((user) => user.user_id === updated.user_id)
         return exists
-          ? prev.map((u) => (u.user_id === updated.user_id ? { ...u, role: updated.role } : u))
+          ? prev.map((user) => (user.user_id === updated.user_id ? { ...user, role: updated.role } : user))
           : [updated, ...prev]
       })
       setNewEmail('')
       toast.success('Role assigned')
-    } catch {
+    } catch (error) {
+      console.error('[UserRoleManager] Failed to assign role:', error)
       toast.error('Failed to assign role. Make sure the user has signed in at least once.')
     } finally {
       setAssigning(false)
@@ -82,13 +94,13 @@ export function UserRoleManager() {
             onChange={(e) => setNewEmail(e.target.value)}
             className="flex-1 min-w-48"
           />
-          <Select value={newRole} onValueChange={(v) => setNewRole(v as UserRole)}>
+          <Select value={newRole} onValueChange={(value) => setNewRole(value as UserRole)}>
             <SelectTrigger className="w-36">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {ROLES.map((r) => (
-                <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+              {ROLES.map((role) => (
+                <SelectItem key={role.value} value={role.value}>{role.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -105,14 +117,14 @@ export function UserRoleManager() {
         {!loading && users.length === 0 && (
           <p className="text-sm text-muted-foreground">No users with assigned roles yet.</p>
         )}
-        {users.map((u) => (
+        {users.map((user) => (
           <div
-            key={u.id}
+            key={user.id}
             className="flex items-center justify-between p-3 rounded-md border bg-card"
           >
-            <span className="text-sm">{u.email ?? u.user_id}</span>
-            <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'}>
-              {u.role}
+            <span className="text-sm">{user.email ?? user.user_id}</span>
+            <Badge variant={ROLE_COLORS[user.role] as 'default' | 'secondary' | 'destructive'}>
+              {user.role}
             </Badge>
           </div>
         ))}

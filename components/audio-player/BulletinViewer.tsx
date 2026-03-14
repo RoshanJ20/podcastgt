@@ -1,3 +1,14 @@
+/**
+ * @module BulletinViewer
+ *
+ * Inline PDF viewer for bulletin documents with pagination and download support.
+ *
+ * Key responsibilities:
+ * - Renders a collapsible PDF preview using react-pdf
+ * - Provides page-by-page navigation for multi-page documents
+ * - Adapts PDF width to container size via ResizeObserver
+ * - Offers a direct download link for the full PDF
+ */
 'use client'
 
 import { useState, useCallback } from 'react'
@@ -78,7 +89,7 @@ export function BulletinViewer({ url }: BulletinViewerProps) {
           {numPages && numPages > 1 && (
             <div className="flex items-center justify-center gap-3 py-2 border-b border-border bg-muted/30">
               <button
-                onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
+                onClick={() => setPageNumber((currentPage) => Math.max(1, currentPage - 1))}
                 disabled={pageNumber <= 1}
                 className="p-1.5 rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
@@ -88,7 +99,7 @@ export function BulletinViewer({ url }: BulletinViewerProps) {
                 {pageNumber} / {numPages}
               </span>
               <button
-                onClick={() => setPageNumber((p) => Math.min(numPages, p + 1))}
+                onClick={() => setPageNumber((currentPage) => Math.min(numPages, currentPage + 1))}
                 disabled={pageNumber >= numPages}
                 className="p-1.5 rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >

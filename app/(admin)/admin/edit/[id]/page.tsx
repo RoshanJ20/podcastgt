@@ -1,3 +1,13 @@
+/**
+ * @module EditPodcastPage
+ *
+ * Admin page for editing an existing bulletin's metadata and files.
+ *
+ * Key responsibilities:
+ * - Fetches the bulletin by ID from Supabase
+ * - Returns a 404 if the bulletin does not exist
+ * - Renders the UploadForm pre-populated with existing bulletin data
+ */
 import { createClient } from '@/lib/supabase/server'
 import { UploadForm } from '@/components/admin/UploadForm'
 import { notFound } from 'next/navigation'

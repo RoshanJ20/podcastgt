@@ -1,3 +1,13 @@
+/**
+ * @module LoginPage
+ *
+ * Authentication page supporting magic link and password-based sign-in/sign-up.
+ *
+ * Key responsibilities:
+ * - Renders a tabbed interface for magic link vs. password authentication
+ * - Handles sign-up with email confirmation and sign-in with redirect
+ * - Preserves the intended redirect destination via query parameters
+ */
 'use client'
 
 import { useState } from 'react'

@@ -1,3 +1,13 @@
+/**
+ * @module PodcastSidebar
+ *
+ * Sticky sidebar for the podcast detail page showing transcript and bookmarks.
+ *
+ * Key responsibilities:
+ * - Renders tabbed views for transcript and bookmarks in the desktop sidebar
+ * - Consumes PlayerContext for synchronized playback time and seek control
+ * - Stays sticky at the top of the viewport while scrolling
+ */
 'use client'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'

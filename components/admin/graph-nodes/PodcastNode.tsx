@@ -1,3 +1,14 @@
+/**
+ * @module PodcastNode
+ *
+ * Custom React Flow node component representing a podcast/bulletin in the learning graph editor.
+ *
+ * Key responsibilities:
+ * - Renders a compact card with thumbnail, title, domain badge, and node type indicator
+ * - Applies visual styling based on node type (start, milestone, end, default)
+ * - Provides connection handles for linking nodes in the graph
+ * - Memoized for performance in large graph canvases
+ */
 'use client'
 
 import { memo } from 'react'

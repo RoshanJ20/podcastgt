@@ -1,3 +1,13 @@
+/**
+ * @module DomainFilter
+ *
+ * Horizontal filter bar for selecting a domain category in the bulletin library.
+ *
+ * Key responsibilities:
+ * - Renders pill-shaped filter buttons for each domain plus an "All" option
+ * - Updates the URL search params to reflect the selected domain filter
+ * - Applies domain-specific color styling to the active filter button
+ */
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
@@ -33,18 +43,18 @@ export function DomainFilter() {
       >
         All
       </button>
-      {DOMAINS.map((d) => (
+      {DOMAINS.map((domain) => (
         <button
-          key={d}
-          onClick={() => handleChange(d)}
+          key={domain}
+          onClick={() => handleChange(domain)}
           className={cn(
             'px-3.5 py-1.5 text-sm font-medium rounded-full transition-all',
-            current === d
-              ? `${DOMAIN_COLORS[d]} shadow-md`
+            current === domain
+              ? `${DOMAIN_COLORS[domain]} shadow-md`
               : 'border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
           )}
         >
-          {d}
+          {domain}
         </button>
       ))}
     </div>

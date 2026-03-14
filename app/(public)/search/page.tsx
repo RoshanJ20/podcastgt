@@ -1,3 +1,13 @@
+/**
+ * @module SearchPage
+ *
+ * AI-powered semantic search page for finding bulletin content by question.
+ *
+ * Key responsibilities:
+ * - Provides a search form with example query suggestions
+ * - Calls the /api/search endpoint and displays timestamped results
+ * - Links search results directly to the relevant bulletin at the matched timestamp
+ */
 'use client'
 
 import { useState } from 'react'
@@ -18,9 +28,9 @@ interface SearchResult {
 }
 
 function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.floor(seconds % 60)
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
 export default function SearchPage() {
@@ -98,13 +108,13 @@ export default function SearchPage() {
               'Key findings on public spending',
               'Independence standards explained',
               'Risk management frameworks',
-            ].map((q) => (
+            ].map((suggestion) => (
               <button
-                key={q}
-                onClick={() => setQuery(q)}
+                key={suggestion}
+                onClick={() => setQuery(suggestion)}
                 className="text-sm px-3.5 py-1.5 rounded-full border border-[#60A5FA]/30 hover:bg-[#60A5FA]/10 hover:border-[#60A5FA]/50 text-foreground/80 transition-all"
               >
-                {q}
+                {suggestion}
               </button>
             ))}
           </div>
@@ -126,8 +136,8 @@ export default function SearchPage() {
               <p className="text-sm text-muted-foreground">
                 Found {results.length} result{results.length !== 1 ? 's' : ''}
               </p>
-              {results.map((result, i) => (
-                <Card key={i} className="glass-card hover:border-[#60A5FA]/20 transition-colors">
+              {results.map((result, resultIndex) => (
+                <Card key={resultIndex} className="glass-card hover:border-[#60A5FA]/20 transition-colors">
                   <CardContent className="pt-4">
                     <div className="flex items-start gap-3">
                       {result.podcast_thumbnail && (

@@ -1,3 +1,13 @@
+/**
+ * @module PodcastPlayerClient
+ *
+ * Client-side podcast player component with inline transcript and bookmarks.
+ *
+ * Key responsibilities:
+ * - Wraps the AudioPlayer, TranscriptViewer, and BookmarkPanel in a shared PlayerContext
+ * - Provides mobile-responsive tabbed layout for transcript and bookmarks
+ * - Serves as the main player entry point for embedded podcast views
+ */
 'use client'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'

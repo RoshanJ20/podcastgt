@@ -1,3 +1,14 @@
+/**
+ * @module FileDropZone
+ *
+ * Reusable drag-and-drop file upload zone with preview support.
+ *
+ * Key responsibilities:
+ * - Handles file drag-and-drop and click-to-browse interactions
+ * - Supports single or multiple file selection with configurable limits
+ * - Renders file list with size display and removal controls
+ * - Optionally shows image previews for uploaded image files
+ */
 'use client'
 
 import { useRef, useState, useCallback } from 'react'

@@ -1,3 +1,13 @@
+/**
+ * @module ProfilePage
+ *
+ * Authenticated user profile page showing bookmarks and learning progress.
+ *
+ * Key responsibilities:
+ * - Authenticates the user and redirects unauthenticated visitors to login
+ * - Fetches the user's bookmarks with associated podcast information
+ * - Fetches learning path progress with graph and node details
+ */
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ProfileContent } from '@/components/profile/ProfileContent'

@@ -1,3 +1,13 @@
+/**
+ * @module PublicLayout
+ *
+ * Layout for all public-facing routes with sidebar navigation and footer.
+ *
+ * Key responsibilities:
+ * - Renders the public sidebar for navigation
+ * - Shows a mobile-friendly sidebar trigger on small screens
+ * - Provides a consistent footer across all public pages
+ */
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { PublicSidebar } from '@/components/library/PublicSidebar'
 

@@ -1,3 +1,14 @@
+/**
+ * @module PodcastPageWrapper
+ *
+ * Full-page layout wrapper for the podcast detail view with integrated player and sidebar.
+ *
+ * Key responsibilities:
+ * - Renders the podcast header with metadata (thumbnail, domain, tags, description)
+ * - Wraps the audio player, transcript, and bookmark panel in a shared PlayerContext
+ * - Provides responsive layout with desktop sidebar and mobile tab navigation
+ * - Displays the bulletin PDF viewer when a PDF is available
+ */
 'use client'
 
 import { Badge } from '@/components/ui/badge'

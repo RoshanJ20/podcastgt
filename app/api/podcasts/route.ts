@@ -1,7 +1,25 @@
+/**
+ * @module api/podcasts
+ *
+ * Provides listing and creation endpoints for podcast episodes.
+ *
+ * Key responsibilities:
+ * - List podcasts with optional filters (domain, content type, year, tags).
+ * - Create a new podcast entry (authenticated users only).
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { unauthorizedResponse, internalErrorResponse } from '@/lib/api/error-response'
 
-export async function GET(request: NextRequest) {
+/**
+ * Retrieve all podcasts, optionally filtered by domain, content type, year, or tags.
+ *
+ * @param request - Incoming request with optional query params: `domain`, `content_type`, `year`, `tags`.
+ * @returns JSON array of podcast objects ordered by sort_order then created_at.
+ * @throws 500 if the database query fails.
+ */
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
   const { searchParams } = new URL(request.url)
 
@@ -10,41 +28,47 @@ export async function GET(request: NextRequest) {
   const year = searchParams.get('year')
   const tags = searchParams.get('tags')
 
-  let query = supabase
+  let podcastQuery = supabase
     .from('podcasts')
     .select('*')
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false })
 
-  if (domain) query = query.eq('domain', domain)
-  if (contentType) query = query.eq('content_type', contentType)
-  if (year) query = query.eq('year', parseInt(year))
-  if (tags) query = query.overlaps('tags', tags.split(','))
+  if (domain) podcastQuery = podcastQuery.eq('domain', domain)
+  if (contentType) podcastQuery = podcastQuery.eq('content_type', contentType)
+  if (year) podcastQuery = podcastQuery.eq('year', parseInt(year, 10))
+  if (tags) podcastQuery = podcastQuery.overlaps('tags', tags.split(','))
 
-  const { data, error } = await query
+  const { data: podcasts, error: fetchError } = await podcastQuery
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (fetchError) return internalErrorResponse('fetch podcasts', fetchError)
 
-  return NextResponse.json(data)
+  return NextResponse.json(podcasts)
 }
 
-export async function POST(request: NextRequest) {
+/**
+ * Create a new podcast entry.
+ *
+ * @param request - JSON body with podcast fields (title, domain, etc.).
+ * @returns The newly created podcast with status 201.
+ * @throws 401 if user is not authenticated.
+ * @throws 500 if the insert fails.
+ */
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return unauthorizedResponse()
 
   const body = await request.json()
 
-  const { data, error } = await supabase
+  const { data: podcast, error: insertError } = await supabase
     .from('podcasts')
     .insert(body)
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (insertError) return internalErrorResponse('create podcast', insertError)
 
-  return NextResponse.json(data, { status: 201 })
+  return NextResponse.json(podcast, { status: 201 })
 }

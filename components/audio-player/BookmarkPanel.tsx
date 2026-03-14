@@ -1,3 +1,14 @@
+/**
+ * @module BookmarkPanel
+ *
+ * Panel for managing timestamped bookmarks on a podcast episode.
+ *
+ * Key responsibilities:
+ * - Displays a scrollable list of bookmarks with timestamps and notes
+ * - Allows adding new bookmarks at the current playback position
+ * - Supports deleting existing bookmarks via API
+ * - Clicking a bookmark timestamp seeks the audio player to that position
+ */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -30,9 +41,9 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
   useEffect(() => {
     if (!isLoggedIn) return
     fetch('/api/bookmarks')
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data: BookmarkType[]) => {
-        setBookmarks(data.filter((b) => b.podcast_id === podcastId))
+        setBookmarks(data.filter((bookmark) => bookmark.podcast_id === podcastId))
       })
   }, [podcastId, isLoggedIn])
 
@@ -52,7 +63,8 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
       setNote('')
       setShowForm(false)
       toast.success('Bookmark added')
-    } catch {
+    } catch (error) {
+      console.error('[BookmarkPanel] Failed to add bookmark:', error)
       toast.error('Failed to add bookmark')
     } finally {
       setAdding(false)
@@ -66,7 +78,7 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
       body: JSON.stringify({ id }),
     })
     if (res.ok) {
-      setBookmarks((prev) => prev.filter((b) => b.id !== id))
+      setBookmarks((prev) => prev.filter((bookmark) => bookmark.id !== id))
       toast.success('Bookmark removed')
     }
   }
@@ -92,7 +104,7 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
           size="sm"
           variant="outline"
           className="h-7 text-xs"
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => setShowForm((visible) => !visible)}
         >
           <Plus className="h-3 w-3 mr-1" />
           Add at {formatTime(currentTime)}
@@ -128,22 +140,22 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
           <p className="text-xs text-muted-foreground text-center py-4">No bookmarks yet.</p>
         ) : (
           <div className="space-y-2">
-            {bookmarks.map((bm) => (
+            {bookmarks.map((bookmark) => (
               <div
-                key={bm.id}
+                key={bookmark.id}
                 className="flex items-start gap-2 p-2 rounded glass-card hover:border-primary/20 transition-colors"
               >
                 <button
-                  onClick={() => onSeek(bm.timestamp_seconds)}
+                  onClick={() => onSeek(bookmark.timestamp_seconds)}
                   className="text-xs font-mono text-primary hover:underline shrink-0 mt-0.5"
                 >
-                  {formatTime(bm.timestamp_seconds)}
+                  {formatTime(bookmark.timestamp_seconds)}
                 </button>
                 <div className="flex-1 min-w-0">
-                  {bm.note && (
-                    <p className="text-xs text-muted-foreground line-clamp-2">{bm.note}</p>
+                  {bookmark.note && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">{bookmark.note}</p>
                   )}
-                  {!bm.note && (
+                  {!bookmark.note && (
                     <p className="text-xs text-muted-foreground italic">No note</p>
                   )}
                 </div>
@@ -151,7 +163,7 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
-                  onClick={() => handleDelete(bm.id)}
+                  onClick={() => handleDelete(bookmark.id)}
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
