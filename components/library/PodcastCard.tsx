@@ -7,7 +7,7 @@ import type { Podcast } from '@/lib/supabase/types'
 export function PodcastCard({ podcast }: { podcast: Podcast }) {
   return (
     <Link href={`/podcast/${podcast.id}`}>
-      <Card className="group overflow-hidden transition-all duration-300 cursor-pointer h-full glass-card hover:border-[#60A5FA]/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#60A5FA]/10">
+      <Card className="group overflow-hidden transition-all duration-300 cursor-pointer h-full glass-card ring-0 hover:border-[#60A5FA]/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#60A5FA]/10 pt-0 gap-0">
         <div className="relative aspect-square bg-muted overflow-hidden">
           {podcast.thumbnail_url ? (
             <img

@@ -9,7 +9,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AudioPlayer } from '@/components/audio-player/AudioPlayer'
-import { ExternalLink, FileText } from 'lucide-react'
+import { ExternalLink, FileText, CheckCircle2, Circle } from 'lucide-react'
 import Link from 'next/link'
 import { DOMAIN_COLORS } from '@/lib/supabase/types'
 import type { Domain } from '@/lib/supabase/types'
@@ -27,9 +27,13 @@ interface NodeDetailModalProps {
     audioLongUrl: string | null
     bulletinUrl: string | null
   }
+  nodeId?: string
+  isCompleted?: boolean
+  isLoggedIn?: boolean
+  onToggleComplete?: (nodeId: string) => void
 }
 
-export function NodeDetailModal({ open, onOpenChange, podcast }: NodeDetailModalProps) {
+export function NodeDetailModal({ open, onOpenChange, podcast, nodeId, isCompleted, isLoggedIn, onToggleComplete }: NodeDetailModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
@@ -82,7 +86,23 @@ export function NodeDetailModal({ open, onOpenChange, podcast }: NodeDetailModal
             </a>
           )}
 
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center justify-between pt-2">
+            {isLoggedIn && nodeId && onToggleComplete ? (
+              <Button
+                variant={isCompleted ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onToggleComplete(nodeId)}
+                className={isCompleted ? 'bg-green-600 hover:bg-green-700 text-white' : ''}
+              >
+                {isCompleted ? (
+                  <><CheckCircle2 className="h-4 w-4 mr-1.5" /> Completed</>
+                ) : (
+                  <><Circle className="h-4 w-4 mr-1.5" /> Mark complete</>
+                )}
+              </Button>
+            ) : (
+              <div />
+            )}
             <Button variant="outline" asChild>
               <Link href={`/podcast/${podcast.id}`}>
                 View Full Page
