@@ -23,7 +23,8 @@ interface PodcastSidebarProps {
 
 export function PodcastSidebar({ podcast, isLoggedIn }: PodcastSidebarProps) {
   const { currentTime, handleSeek } = usePodcastPlayer()
-  const transcript = podcast.transcript
+  const { activeAudioType } = usePodcastPlayer()
+  const transcript = podcast.transcripts?.find((t) => t.transcript_type === activeAudioType) ?? podcast.transcripts?.[0]
   const segments = (transcript?.segments as TranscriptSegment[]) ?? []
 
   return (

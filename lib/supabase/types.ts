@@ -41,26 +41,30 @@ export const CONTENT_TYPES: { value: ContentType; label: string }[] = [
 /** A podcast episode record from the database. */
 export interface Podcast {
   id: string
-  title: string
+  title: string | null
   description: string | null
-  domain: Domain
-  year: number
+  domain: Domain | null
+  year: number | null
   tags: string[]
   thumbnail_url: string | null
   audio_short_url: string | null
   audio_long_url: string | null
-  bulletin_url: string | null
-  content_type: ContentType
+  bulletin_urls: string[]
+  content_type: ContentType | null
   sort_order: number
   created_at: string
   updated_at: string
-  transcript?: Transcript | null
+  transcripts?: Transcript[] | null
 }
+
+/** Transcript type: short matches audio short, long matches audio long. */
+export type TranscriptType = 'short' | 'long'
 
 /** A transcript record linked to a podcast. */
 export interface Transcript {
   id: string
   podcast_id: string
+  transcript_type: TranscriptType
   full_text: string | null
   segments: TranscriptSegment[] | null
   created_at: string
@@ -130,7 +134,7 @@ export interface LearningGraphNode {
   node_type: GraphNodeType
   sort_order: number
   created_at: string
-  podcast?: Pick<Podcast, 'id' | 'title' | 'thumbnail_url' | 'domain' | 'description' | 'audio_short_url' | 'audio_long_url' | 'bulletin_url'>
+  podcast?: Pick<Podcast, 'id' | 'title' | 'thumbnail_url' | 'domain' | 'description' | 'audio_short_url' | 'audio_long_url' | 'bulletin_urls'>
 }
 
 /** A directed edge between two nodes within a learning graph. */

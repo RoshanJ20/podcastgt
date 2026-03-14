@@ -30,13 +30,13 @@ interface NodeDetailModalProps {
   onOpenChange: (open: boolean) => void
   podcast: {
     id: string
-    title: string
+    title: string | null
     description: string | null
-    domain: string
+    domain: string | null
     thumbnailUrl: string | null
     audioShortUrl: string | null
     audioLongUrl: string | null
-    bulletinUrl: string | null
+    bulletinUrls: string[]
   }
   nodeId?: string
   isCompleted?: boolean
@@ -50,7 +50,7 @@ export function NodeDetailModal({ open, onOpenChange, podcast, nodeId, isComplet
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {podcast.title}
+            {podcast.title ?? 'Untitled'}
           </DialogTitle>
         </DialogHeader>
 
@@ -58,16 +58,18 @@ export function NodeDetailModal({ open, onOpenChange, podcast, nodeId, isComplet
           {podcast.thumbnailUrl && (
             <img
               src={podcast.thumbnailUrl}
-              alt={podcast.title}
+              alt={podcast.title ?? 'Bulletin'}
               className="w-full h-40 object-cover rounded-lg"
             />
           )}
 
+          {podcast.domain && (
           <div className="flex items-center gap-2">
             <Badge className={DOMAIN_COLORS[podcast.domain as Domain]}>
               {podcast.domain}
             </Badge>
           </div>
+          )}
 
           {podcast.description && (
             <p className="text-sm text-muted-foreground">{podcast.description}</p>
@@ -83,18 +85,23 @@ export function NodeDetailModal({ open, onOpenChange, podcast, nodeId, isComplet
             </div>
           )}
 
-          {/* PDF Link */}
-          {podcast.bulletinUrl && (
-            <a
-              href={podcast.bulletinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-primary hover:underline"
-            >
-              <FileText className="h-4 w-4" />
-              View Bulletin PDF
-              <ExternalLink className="h-3 w-3" />
-            </a>
+          {/* PDF Links */}
+          {podcast.bulletinUrls.length > 0 && (
+            <div className="space-y-1">
+              {podcast.bulletinUrls.map((url, i) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-primary hover:underline"
+                >
+                  <FileText className="h-4 w-4" />
+                  {podcast.bulletinUrls.length === 1 ? 'View Bulletin PDF' : `View Bulletin PDF (${i + 1})`}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ))}
+            </div>
           )}
 
           <div className="flex items-center justify-between pt-2">

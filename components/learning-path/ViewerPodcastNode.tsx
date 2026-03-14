@@ -54,11 +54,13 @@ const ViewerPodcastNode = memo(function ViewerPodcastNode({
           )}
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium leading-tight line-clamp-2">
-              {data.title}
+              {data.title ?? 'Untitled'}
             </p>
+            {data.domain && (
             <Badge variant="outline" className="text-[10px] px-1 py-0 mt-1">
               {data.domain}
             </Badge>
+            )}
           </div>
         </div>
       </div>

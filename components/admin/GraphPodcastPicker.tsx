@@ -49,8 +49,8 @@ export function GraphPodcastPicker({
     const searchQuery = search.toLowerCase()
     return podcasts.filter(
       (podcast) =>
-        podcast.title.toLowerCase().includes(searchQuery) ||
-        podcast.domain.toLowerCase().includes(searchQuery)
+        (podcast.title ?? '').toLowerCase().includes(searchQuery) ||
+        (podcast.domain ?? '').toLowerCase().includes(searchQuery)
     )
   }, [podcasts, search])
 
@@ -104,9 +104,9 @@ export function GraphPodcastPicker({
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{podcast.title}</p>
+                  <p className="text-xs font-medium truncate">{podcast.title ?? 'Untitled'}</p>
                   <Badge variant="outline" className="text-[10px] px-1 py-0 mt-0.5">
-                    {podcast.domain}
+                    {podcast.domain ?? '\u2014'}
                   </Badge>
                 </div>
                 <Button

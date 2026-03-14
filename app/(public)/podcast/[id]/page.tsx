@@ -23,7 +23,7 @@ export default async function PodcastPage({
 
   const { data: podcast } = await supabase
     .from('podcasts')
-    .select('*, transcript:transcripts(id, full_text, segments)')
+    .select('*, transcripts(id, full_text, segments, transcript_type)')
     .eq('id', id)
     .single()
 

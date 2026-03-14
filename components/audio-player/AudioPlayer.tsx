@@ -20,6 +20,7 @@ interface AudioPlayerProps {
   shortUrl: string | null
   longUrl: string | null
   onTimeUpdate?: (currentTime: number) => void
+  onDurationModeChange?: (mode: 'short' | 'long') => void
   seekTo?: number | null
 }
 
@@ -30,7 +31,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPlayerProps) {
+export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, onDurationModeChange, seekTo }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -75,6 +76,7 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
   const switchDuration = (mode: 'short' | 'long') => {
     const time = audioRef.current?.currentTime ?? 0
     setDurationMode(mode)
+    onDurationModeChange?.(mode)
     setLoading(true)
     requestAnimationFrame(() => {
       if (audioRef.current) {

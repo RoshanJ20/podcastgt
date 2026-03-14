@@ -25,7 +25,7 @@ async function PodcastsContent({ domain }: { domain?: string }) {
 
   let podcastQuery = supabase
     .from('podcasts')
-    .select('*, transcript:transcripts(id)')
+    .select('*, transcripts(id, transcript_type)')
     .eq('content_type', 'technical')
     .order('sort_order', { ascending: true })
 

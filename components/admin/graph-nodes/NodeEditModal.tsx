@@ -36,13 +36,13 @@ import { DOMAINS, GRAPH_NODE_TYPES, type GraphNodeType, type Domain } from '@/li
 
 interface PodcastData {
   id: string
-  title: string
+  title: string | null
   description: string | null
-  domain: string
+  domain: string | null
   thumbnailUrl: string | null
   audioShortUrl: string | null
   audioLongUrl: string | null
-  bulletinUrl: string | null
+  bulletinUrls: string[]
 }
 
 interface NodeEditModalProps {
@@ -65,9 +65,9 @@ export function NodeEditModal({
   onPodcastUpdate,
 }: NodeEditModalProps) {
   const [saving, setSaving] = useState(false)
-  const [title, setTitle] = useState(podcast.title)
+  const [title, setTitle] = useState(podcast.title ?? '')
   const [description, setDescription] = useState(podcast.description ?? '')
-  const [domain, setDomain] = useState(podcast.domain)
+  const [domain, setDomain] = useState(podcast.domain ?? '')
 
   const handleSave = async () => {
     setSaving(true)
@@ -170,16 +170,16 @@ export function NodeEditModal({
                   Long Audio
                 </Badge>
               )}
-              {podcast.bulletinUrl && (
-                <a href={podcast.bulletinUrl} target="_blank" rel="noopener noreferrer">
+              {podcast.bulletinUrls.map((url, i) => (
+                <a key={i} href={url} target="_blank" rel="noopener noreferrer">
                   <Badge variant="outline" className="gap-1 cursor-pointer hover:bg-accent">
                     <FileText className="h-3 w-3" />
-                    PDF
+                    {podcast.bulletinUrls.length === 1 ? 'PDF' : `PDF (${i + 1})`}
                     <ExternalLink className="h-2.5 w-2.5" />
                   </Badge>
                 </a>
-              )}
-              {!podcast.audioShortUrl && !podcast.audioLongUrl && !podcast.bulletinUrl && (
+              ))}
+              {!podcast.audioShortUrl && !podcast.audioLongUrl && podcast.bulletinUrls.length === 0 && (
                 <p className="text-xs text-muted-foreground italic">No media attached</p>
               )}
             </div>

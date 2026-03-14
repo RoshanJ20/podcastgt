@@ -18,7 +18,7 @@ export type ViewerNodeData = {
   thumbnailUrl: string | null
   audioShortUrl: string | null
   audioLongUrl: string | null
-  bulletinUrl: string | null
+  bulletinUrls: string[]
   nodeType: GraphNodeType
   completed: boolean
 }
@@ -46,7 +46,7 @@ export function toFlowNodes(
       thumbnailUrl: graphNode.podcast?.thumbnail_url ?? null,
       audioShortUrl: graphNode.podcast?.audio_short_url ?? null,
       audioLongUrl: graphNode.podcast?.audio_long_url ?? null,
-      bulletinUrl: graphNode.podcast?.bulletin_url ?? null,
+      bulletinUrls: graphNode.podcast?.bulletin_urls ?? [],
       nodeType: graphNode.node_type,
       completed: completedNodeIds.has(graphNode.id),
     },
