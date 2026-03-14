@@ -49,8 +49,9 @@ export async function GET() {
     const episodeDomainMap = new Map<string, string>()
     if (episodes) {
       for (const ep of episodes) {
-        const lg = ep.learning_graphs as { domain: string } | null
-        if (lg?.domain) episodeDomainMap.set(ep.id, lg.domain)
+        const lg = ep.learning_graphs as unknown as { domain: string }[] | null
+        const domain = lg?.[0]?.domain
+        if (domain) episodeDomainMap.set(ep.id, domain)
       }
     }
 
