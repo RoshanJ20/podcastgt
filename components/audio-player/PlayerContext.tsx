@@ -11,24 +11,30 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback } from 'react'
+import type { TranscriptType } from '@/lib/supabase/types'
 
 interface PlayerContextValue {
   currentTime: number
   seekTo: number | null
+  activeAudioType: TranscriptType
   setCurrentTime: (t: number) => void
   handleSeek: (t: number) => void
+  setActiveAudioType: (t: TranscriptType) => void
 }
 
 const PlayerContext = createContext<PlayerContextValue>({
   currentTime: 0,
   seekTo: null,
+  activeAudioType: 'short',
   setCurrentTime: () => null,
   handleSeek: () => null,
+  setActiveAudioType: () => null,
 })
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0)
   const [seekTo, setSeekTo] = useState<number | null>(null)
+  const [activeAudioType, setActiveAudioType] = useState<TranscriptType>('short')
 
   const handleSeek = useCallback((time: number) => {
     setSeekTo(time)
@@ -36,7 +42,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <PlayerContext.Provider value={{ currentTime, seekTo, setCurrentTime, handleSeek }}>
+    <PlayerContext.Provider value={{ currentTime, seekTo, activeAudioType, setCurrentTime, handleSeek, setActiveAudioType }}>
       {children}
     </PlayerContext.Provider>
   )

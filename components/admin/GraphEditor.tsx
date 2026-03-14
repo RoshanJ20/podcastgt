@@ -132,9 +132,9 @@ function GraphEditorInner({
   const handlePodcastUpdate = useCallback(
     (updated: {
       id: string
-      title: string
+      title: string | null
       description: string | null
-      domain: string
+      domain: string | null
       thumbnailUrl: string | null
     }) => {
       setNodes((nds) =>

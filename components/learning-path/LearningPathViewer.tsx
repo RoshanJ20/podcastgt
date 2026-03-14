@@ -131,7 +131,7 @@ function LearningPathViewerInner({
       thumbnailUrl: node.podcast?.thumbnail_url ?? null,
       audioShortUrl: node.podcast?.audio_short_url ?? null,
       audioLongUrl: node.podcast?.audio_long_url ?? null,
-      bulletinUrl: node.podcast?.bulletin_url ?? null,
+      bulletinUrls: node.podcast?.bulletin_urls ?? [],
       nodeType: node.node_type,
       completed: completedNodeIds.has(node.id),
     })
@@ -217,7 +217,7 @@ function LearningPathViewerInner({
             thumbnailUrl: selectedPodcast.thumbnailUrl,
             audioShortUrl: selectedPodcast.audioShortUrl,
             audioLongUrl: selectedPodcast.audioLongUrl,
-            bulletinUrl: selectedPodcast.bulletinUrl,
+            bulletinUrls: selectedPodcast.bulletinUrls,
           }}
           nodeId={selectedPodcast.nodeId}
           isCompleted={completedNodeIds.has(selectedPodcast.nodeId)}

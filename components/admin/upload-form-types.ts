@@ -9,11 +9,11 @@ import { z } from 'zod'
 import type { Domain, ContentType } from '@/lib/supabase/types'
 
 export const uploadFormSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().optional(),
   description: z.string().optional(),
-  domain: z.string().min(1, 'Domain is required'),
-  year: z.number().int().min(2000).max(2100),
-  content_type: z.enum(['technical', 'learning_series']),
+  domain: z.string().optional(),
+  year: z.number().int().min(2000).max(2100).optional(),
+  content_type: z.enum(['technical', 'learning_series']).optional(),
   tags: z.array(z.string()),
 })
 
@@ -22,18 +22,18 @@ export type FormValues = z.infer<typeof uploadFormSchema>
 export interface UploadFormProps {
   editPodcast?: {
     id: string
-    title: string
+    title: string | null
     description: string | null
-    domain: Domain
-    year: number
-    content_type: ContentType
+    domain: Domain | null
+    year: number | null
+    content_type: ContentType | null
     tags: string[]
   }
   onSuccess?: (podcast: {
     id: string
-    title: string
+    title: string | null
     thumbnail_url: string | null
-    domain: string
+    domain: string | null
   }) => void
 }
 
@@ -42,7 +42,8 @@ export interface UploadFiles {
   audioShort: File[]
   audioLong: File[]
   bulletin: File[]
-  transcript: File[]
+  transcriptShort: File[]
+  transcriptLong: File[]
 }
 
 export const EMPTY_FILES: UploadFiles = {
@@ -50,7 +51,8 @@ export const EMPTY_FILES: UploadFiles = {
   audioShort: [],
   audioLong: [],
   bulletin: [],
-  transcript: [],
+  transcriptShort: [],
+  transcriptLong: [],
 }
 
 export const STEPS = [

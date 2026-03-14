@@ -18,7 +18,7 @@ export type ExtendedPodcastNodeData = PodcastNodeData & {
   description?: string | null
   audioShortUrl?: string | null
   audioLongUrl?: string | null
-  bulletinUrl?: string | null
+  bulletinUrls?: string[]
 }
 
 /**
@@ -40,7 +40,7 @@ export function dbNodesToFlowNodes(
       description: n.podcast?.description ?? null,
       audioShortUrl: n.podcast?.audio_short_url ?? null,
       audioLongUrl: n.podcast?.audio_long_url ?? null,
-      bulletinUrl: n.podcast?.bulletin_url ?? null,
+      bulletinUrls: n.podcast?.bulletin_urls ?? [],
     },
   }))
 }

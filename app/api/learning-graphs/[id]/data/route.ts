@@ -148,7 +148,7 @@ export async function PUT(
     .from('learning_graphs')
     .select(`
       *,
-      nodes:learning_graph_nodes(*, podcast:podcasts(id, title, thumbnail_url, domain, description, audio_short_url, audio_long_url, bulletin_url)),
+      nodes:learning_graph_nodes(*, podcast:podcasts(id, title, thumbnail_url, domain, description, audio_short_url, audio_long_url, bulletin_urls)),
       edges:learning_graph_edges(*)
     `)
     .eq('id', graphId)

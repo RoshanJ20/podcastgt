@@ -42,8 +42,8 @@ type PodcastSummary = Pick<Podcast, 'id' | 'title' | 'thumbnail_url' | 'domain'>
 interface LinearItem {
   id: string
   podcastId: string
-  title: string
-  domain: string
+  title: string | null
+  domain: string | null
   thumbnailUrl: string | null
 }
 
@@ -84,9 +84,9 @@ function SortableItem({
             />
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{item.title}</p>
+            <p className="text-sm font-medium truncate">{item.title ?? 'Untitled'}</p>
             <Badge variant="outline" className="text-[10px] mt-0.5">
-              {item.domain}
+              {item.domain ?? '\u2014'}
             </Badge>
           </div>
           <Button

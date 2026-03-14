@@ -19,8 +19,8 @@ import type { GraphNodeType } from '@/lib/supabase/types'
 
 export type PodcastNodeData = {
   podcastId: string
-  title: string
-  domain: string
+  title: string | null
+  domain: string | null
   thumbnailUrl: string | null
   nodeType: GraphNodeType
 }
@@ -71,11 +71,13 @@ function PodcastNodeComponent({ data, selected }: NodeProps<PodcastNodeType>) {
             />
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium leading-tight line-clamp-2">{data.title}</p>
+            <p className="text-xs font-medium leading-tight line-clamp-2">{data.title ?? 'Untitled'}</p>
             <div className="flex items-center gap-1 mt-1">
+              {data.domain && (
               <Badge variant="outline" className="text-[10px] px-1 py-0">
                 {data.domain}
               </Badge>
+              )}
               {nodeTypeLabels[nodeType] && (
                 <Badge variant="secondary" className="text-[10px] px-1 py-0">
                   {nodeTypeLabels[nodeType]}

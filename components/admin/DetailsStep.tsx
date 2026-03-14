@@ -65,7 +65,7 @@ export function DetailsStep() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Title *</FormLabel>
+            <FormLabel>Title</FormLabel>
             <FormControl>
               <Input placeholder="Bulletin title" {...field} />
             </FormControl>
@@ -96,7 +96,7 @@ export function DetailsStep() {
           name="domain"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Domain *</FormLabel>
+              <FormLabel>Domain</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -120,7 +120,7 @@ export function DetailsStep() {
           name="year"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Year *</FormLabel>
+              <FormLabel>Year</FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -140,7 +140,7 @@ export function DetailsStep() {
         name="content_type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Content Type *</FormLabel>
+            <FormLabel>Content Type</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>

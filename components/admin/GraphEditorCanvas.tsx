@@ -47,9 +47,9 @@ export interface GraphEditorCanvasProps {
   onChangeNodeType: (nodeId: string, nodeType: GraphNodeType) => void
   onPodcastUpdate: (updated: {
     id: string
-    title: string
+    title: string | null
     description: string | null
-    domain: string
+    domain: string | null
     thumbnailUrl: string | null
   }) => void
 }
@@ -135,7 +135,7 @@ export function GraphEditorCanvas({
             thumbnailUrl: editModalNode.data.thumbnailUrl,
             audioShortUrl: editModalNode.data.audioShortUrl ?? null,
             audioLongUrl: editModalNode.data.audioLongUrl ?? null,
-            bulletinUrl: editModalNode.data.bulletinUrl ?? null,
+            bulletinUrls: editModalNode.data.bulletinUrls ?? [],
           }}
           nodeType={editModalNode.data.nodeType}
           onNodeTypeChange={(nodeType) => {
