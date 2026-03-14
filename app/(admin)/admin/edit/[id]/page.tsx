@@ -27,8 +27,8 @@ export default async function EditPodcastPage({ params }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] gradient-text inline-block">Edit Bulletin</h1>
-        <p className="text-muted-foreground mt-1">Update bulletin metadata and files.</p>
+        <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] gradient-text inline-block">Edit Release</h1>
+        <p className="text-muted-foreground mt-1">Update release metadata and files.</p>
       </div>
       <UploadForm
         editPodcast={{
@@ -37,7 +37,6 @@ export default async function EditPodcastPage({ params }: Props) {
           description: podcast.description,
           domain: podcast.domain,
           year: podcast.year,
-          content_type: podcast.content_type,
           tags: podcast.tags ?? [],
         }}
       />

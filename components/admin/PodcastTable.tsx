@@ -103,11 +103,6 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
         <Badge variant="outline">{podcast.domain ?? '\u2014'}</Badge>
       </td>
       <td className="p-3">
-        <Badge variant={podcast.content_type === 'technical' ? 'default' : 'secondary'}>
-          {podcast.content_type === 'technical' ? 'Bulletin' : 'Learning'}
-        </Badge>
-      </td>
-      <td className="p-3">
         <div className="flex gap-1 flex-wrap">
           {podcast.tags.slice(0, 3).map((tag) => (
             <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
@@ -134,7 +129,7 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete bulletin?</AlertDialogTitle>
+                <AlertDialogTitle>Delete release?</AlertDialogTitle>
                 <AlertDialogDescription>
                   &ldquo;{podcast.title ?? 'Untitled'}&rdquo; will be permanently removed. This cannot be undone.
                 </AlertDialogDescription>
@@ -197,9 +192,9 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
     const res = await fetch(`/api/podcasts/${id}`, { method: 'DELETE' })
     if (res.ok) {
       setPodcasts((prev) => prev.filter((podcast) => podcast.id !== id))
-      toast.success('Bulletin deleted')
+      toast.success('Release deleted')
     } else {
-      toast.error('Failed to delete bulletin')
+      toast.error('Failed to delete release')
     }
   }
 
@@ -212,7 +207,6 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
               <th className="p-3 w-8" />
               <th className="p-3 text-left font-medium">Title</th>
               <th className="p-3 text-left font-medium">Domain</th>
-              <th className="p-3 text-left font-medium">Type</th>
               <th className="p-3 text-left font-medium">Tags</th>
               <th className="p-3 text-left font-medium">Actions</th>
             </tr>
@@ -227,7 +221,7 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
         </table>
         {podcasts.length === 0 && (
           <div className="p-8 text-center text-muted-foreground">
-            No bulletins yet. <Link href="/admin/upload" className="underline text-primary">Upload one</Link>.
+            No releases yet. <Link href="/admin/upload" className="underline text-primary">Upload one</Link>.
           </div>
         )}
       </div>

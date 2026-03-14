@@ -38,8 +38,8 @@ export async function GET(
     .from('learning_graphs')
     .select(`
       *,
-      nodes:learning_graph_nodes(*, podcast:podcasts(id, title, thumbnail_url, domain)),
-      edges:learning_graph_edges(*)
+      episodes:episodes(*),
+      edges:learning_path_edges(*)
     `)
     .eq('id', graphId)
     .single()

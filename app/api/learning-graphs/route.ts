@@ -23,7 +23,7 @@ export async function GET(): Promise<NextResponse> {
 
   const { data: graphs, error: fetchError } = await supabase
     .from('learning_graphs')
-    .select('*, node_count:learning_graph_nodes(count)')
+    .select('*, episode_count:episodes(count)')
     .order('created_at', { ascending: false })
 
   if (fetchError) return internalErrorResponse('fetch learning graphs', fetchError)

@@ -4,13 +4,13 @@
  * Drag-and-drop editor for building and reordering linear learning paths.
  *
  * Key responsibilities:
- * - Provides a sortable list interface for ordering bulletins in a linear path
- * - Supports adding/removing bulletins via a sidebar podcast picker
- * - Handles saving node order and publish/unpublish toggling via API
+ * - Provides a sortable list interface for ordering episodes in a linear path
+ * - Supports adding/removing episodes via a sidebar
+ * - Handles saving episode order and publish/unpublish toggling via API
  */
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -34,27 +34,29 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Save, ArrowLeft, Eye, EyeOff, Loader2, GripVertical, X } from 'lucide-react'
-import { GraphPodcastPicker } from './GraphPodcastPicker'
-import type { LearningGraph, LearningGraphNode, Podcast } from '@/lib/supabase/types'
-
-type PodcastSummary = Pick<Podcast, 'id' | 'title' | 'thumbnail_url' | 'domain'>
+import { EpisodeSidebar } from './EpisodeSidebar'
+import { EpisodeEditModal, type EpisodeData } from './graph-nodes/EpisodeEditModal'
+import type { LearningGraph, Episode, EpisodeTranscript } from '@/lib/supabase/types'
 
 interface LinearItem {
   id: string
-  podcastId: string
-  title: string | null
-  domain: string | null
+  title: string
+  description: string | null
   thumbnailUrl: string | null
+  audioUrl: string | null
+  transcript: EpisodeTranscript | null
 }
 
 function SortableItem({
   item,
   index,
   onRemove,
+  onDoubleClick,
 }: {
   item: LinearItem
   index: number
   onRemove: (id: string) => void
+  onDoubleClick: (item: LinearItem) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
@@ -67,7 +69,7 @@ function SortableItem({
   }
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} onDoubleClick={() => onDoubleClick(item)}>
       <Card className={isDragging ? 'shadow-lg' : ''}>
         <CardContent className="pt-3 pb-3 flex items-center gap-3">
           <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
@@ -84,10 +86,7 @@ function SortableItem({
             />
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{item.title ?? 'Untitled'}</p>
-            <Badge variant="outline" className="text-[10px] mt-0.5">
-              {item.domain ?? '\u2014'}
-            </Badge>
+            <p className="text-sm font-medium truncate">{item.title}</p>
           </div>
           <Button
             variant="ghost"
@@ -103,40 +102,31 @@ function SortableItem({
   )
 }
 
-export function LinearPathEditor({
-  graph,
-  initialPodcasts,
-}: {
-  graph: LearningGraph
-  initialPodcasts: PodcastSummary[]
-}) {
+export function LinearPathEditor({ graph }: { graph: LearningGraph }) {
   const [saving, setSaving] = useState(false)
   const [isPublished, setIsPublished] = useState(graph.is_published)
-  const [podcasts, setPodcasts] = useState<PodcastSummary[]>(initialPodcasts)
 
-  // Initialize items from existing nodes, sorted by sort_order then position_y
+  const [editingItem, setEditingItem] = useState<LinearItem | null>(null)
+
+  // Initialize items from existing episodes, sorted by sort_order then position_y
   const [items, setItems] = useState<LinearItem[]>(() => {
-    const nodes = [...(graph.nodes ?? [])].sort((first, second) => {
+    const episodes = [...(graph.episodes ?? [])].sort((first, second) => {
       if (first.sort_order !== second.sort_order) return first.sort_order - second.sort_order
       return first.position_y - second.position_y
     })
-    return nodes.map((node) => ({
-      id: node.id,
-      podcastId: node.podcast_id,
-      title: node.podcast?.title ?? 'Untitled',
-      domain: node.podcast?.domain ?? '',
-      thumbnailUrl: node.podcast?.thumbnail_url ?? null,
+    return episodes.map((ep) => ({
+      id: ep.id,
+      title: ep.title,
+      description: ep.description,
+      thumbnailUrl: ep.thumbnail_url,
+      audioUrl: ep.audio_url,
+      transcript: ep.transcript,
     }))
   })
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  )
-
-  const usedPodcastIds = useMemo(
-    () => new Set(items.map((item) => item.podcastId)),
-    [items]
   )
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
@@ -150,34 +140,52 @@ export function LinearPathEditor({
     }
   }, [])
 
-  const handleAddPodcast = useCallback((podcast: PodcastSummary) => {
-    setItems((prev) => [
-      ...prev,
-      {
-        id: `temp-${Date.now()}`,
-        podcastId: podcast.id,
-        title: podcast.title,
-        domain: podcast.domain,
-        thumbnailUrl: podcast.thumbnail_url,
-      },
-    ])
+  const handleAddEpisode = useCallback(() => {
+    const newItem: LinearItem = {
+      id: `temp-${Date.now()}`,
+      title: 'New Episode',
+      description: null,
+      thumbnailUrl: null,
+      audioUrl: null,
+      transcript: null,
+    }
+    setItems((prev) => [...prev, newItem])
+    setEditingItem(newItem)
   }, [])
 
   const handleRemove = useCallback((id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id))
   }, [])
 
-  const handlePodcastCreated = useCallback((podcast: PodcastSummary) => {
-    setPodcasts((prev) => [podcast, ...prev])
+  const handleEpisodeUpdate = useCallback((_nodeId: string, updated: EpisodeData) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === _nodeId
+          ? {
+              ...item,
+              title: updated.title,
+              description: updated.description,
+              thumbnailUrl: updated.thumbnailUrl,
+              audioUrl: updated.audioUrl,
+              transcript: updated.transcript,
+            }
+          : item
+      )
+    )
+    setEditingItem(null)
   }, [])
 
   const handleSave = useCallback(async () => {
     setSaving(true)
     try {
       const payload = {
-        nodes: items.map((item, index) => ({
+        episodes: items.map((item, index) => ({
           id: item.id,
-          podcast_id: item.podcastId,
+          title: item.title,
+          description: item.description,
+          thumbnail_url: item.thumbnailUrl,
+          audio_url: item.audioUrl,
+          transcript: item.transcript,
           position_x: 0,
           position_y: index * 100,
           label: null,
@@ -197,17 +205,18 @@ export function LinearPathEditor({
 
       const saved = await res.json()
 
-      if (saved.nodes) {
-        const sortedNodes = [...saved.nodes].sort(
-          (first: LearningGraphNode, second: LearningGraphNode) => first.sort_order - second.sort_order
+      if (saved.episodes) {
+        const sortedEpisodes = [...saved.episodes].sort(
+          (first: Episode, second: Episode) => first.sort_order - second.sort_order
         )
         setItems(
-          sortedNodes.map((node: LearningGraphNode) => ({
-            id: node.id,
-            podcastId: node.podcast_id,
-            title: node.podcast?.title ?? 'Untitled',
-            domain: node.podcast?.domain ?? '',
-            thumbnailUrl: node.podcast?.thumbnail_url ?? null,
+          sortedEpisodes.map((ep: Episode) => ({
+            id: ep.id,
+            title: ep.title,
+            description: ep.description,
+            thumbnailUrl: ep.thumbnail_url,
+            audioUrl: ep.audio_url,
+            transcript: ep.transcript,
           }))
         )
       }
@@ -269,7 +278,7 @@ export function LinearPathEditor({
         <div className="flex-1 overflow-y-auto p-4">
           {items.length === 0 ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p className="text-sm">Add bulletins from the sidebar to build your linear path.</p>
+              <p className="text-sm">Add episodes from the sidebar to build your linear path.</p>
             </div>
           ) : (
             <div className="max-w-xl mx-auto space-y-2">
@@ -285,6 +294,7 @@ export function LinearPathEditor({
                       item={item}
                       index={index}
                       onRemove={handleRemove}
+                      onDoubleClick={(item) => setEditingItem(item)}
                     />
                   ))}
                 </SortableContext>
@@ -293,14 +303,29 @@ export function LinearPathEditor({
           )}
         </div>
         <div className="w-64 border-l bg-card overflow-hidden">
-          <GraphPodcastPicker
-            podcasts={podcasts}
-            usedPodcastIds={usedPodcastIds}
-            onAddPodcast={handleAddPodcast}
-            onPodcastCreated={handlePodcastCreated}
+          <EpisodeSidebar
+            episodeCount={items.length}
+            onAddEpisode={handleAddEpisode}
           />
         </div>
       </div>
+
+      {editingItem && (
+        <EpisodeEditModal
+          open={!!editingItem}
+          onOpenChange={(open) => { if (!open) setEditingItem(null) }}
+          nodeId={editingItem.id}
+          episode={{
+            title: editingItem.title,
+            description: editingItem.description,
+            thumbnailUrl: editingItem.thumbnailUrl,
+            audioUrl: editingItem.audioUrl,
+            transcript: editingItem.transcript,
+            nodeType: 'default',
+          }}
+          onEpisodeUpdate={handleEpisodeUpdate}
+        />
+      )}
     </div>
   )
 }

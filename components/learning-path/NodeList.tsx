@@ -1,66 +1,66 @@
-/**
- * @module NodeList
- *
- * Renders an ordered list of learning path nodes as clickable cards.
- * Used as the primary view for linear paths and as a mobile fallback
- * for graph-mode paths where the React Flow canvas is not practical.
- * Each card shows a sequence number (or checkmark if completed),
- * thumbnail, title, and domain badge.
- */
-
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { LearningGraphNode } from '@/lib/supabase/types'
+import type { Episode } from '@/lib/supabase/types'
 
 interface NodeListProps {
-  nodes: LearningGraphNode[]
-  completedNodeIds: Set<string>
-  onNodeClick: (node: LearningGraphNode) => void
+  episodes: Episode[]
+  completedEpisodeIds: Set<string>
+  onEpisodeClick: (episode: Episode) => void
+  selectedEpisodeId?: string
 }
 
-export function NodeList({ nodes, completedNodeIds, onNodeClick }: NodeListProps) {
+export function NodeList({ episodes, completedEpisodeIds, onEpisodeClick, selectedEpisodeId }: NodeListProps) {
   return (
-    <div className="space-y-3">
-      {nodes.map((node, index) => {
-        const isCompleted = completedNodeIds.has(node.id)
+    <div className="space-y-2">
+      {episodes.map((episode, index) => {
+        const isCompleted = completedEpisodeIds.has(episode.id)
+        const isSelected = selectedEpisodeId === episode.id
         return (
           <Card
-            key={node.id}
+            key={episode.id}
             className={cn(
-              'cursor-pointer hover:shadow-md transition-shadow',
+              'cursor-pointer transition-all duration-200',
               isCompleted && 'border-green-500/30 bg-green-500/5',
+              isSelected
+                ? 'border-primary ring-1 ring-primary/30 shadow-md'
+                : 'hover:shadow-md hover:border-border/80',
             )}
-            onClick={() => onNodeClick(node)}
+            onClick={() => onEpisodeClick(episode)}
           >
-            <CardContent className="pt-4 flex items-center gap-3">
+            <CardContent className="py-3 px-4 flex items-center gap-3">
               <span
                 className={cn(
-                  'text-lg font-bold w-8 shrink-0 text-center',
-                  isCompleted ? 'text-green-500' : 'text-muted-foreground',
+                  'text-sm font-bold w-7 h-7 shrink-0 flex items-center justify-center rounded-full',
+                  isCompleted
+                    ? 'bg-green-500/10 text-green-500'
+                    : isSelected
+                      ? 'bg-primary/10 text-primary'
+                      : 'bg-muted text-muted-foreground',
                 )}
               >
                 {isCompleted ? (
-                  <CheckCircle2 className="h-5 w-5 mx-auto" />
+                  <CheckCircle2 className="h-4 w-4" />
                 ) : (
                   index + 1
                 )}
               </span>
-              {node.podcast?.thumbnail_url && (
+              {episode.thumbnail_url && (
                 <img
-                  src={node.podcast.thumbnail_url}
+                  src={episode.thumbnail_url}
                   alt=""
-                  className="w-10 h-10 rounded object-cover shrink-0"
+                  className="w-9 h-9 rounded object-cover shrink-0"
                 />
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">
-                  {node.podcast?.title ?? 'Untitled'}
+                  {episode.title}
                 </p>
-                <Badge variant="outline" className="text-[10px] mt-0.5">
-                  {node.podcast?.domain}
-                </Badge>
+                {episode.description && (
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {episode.description}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

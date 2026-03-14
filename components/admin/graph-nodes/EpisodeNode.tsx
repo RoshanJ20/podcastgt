@@ -1,10 +1,10 @@
 /**
- * @module PodcastNode
+ * @module EpisodeNode
  *
- * Custom React Flow node component representing a podcast/bulletin in the learning graph editor.
+ * Custom React Flow node component representing an episode in the learning graph editor.
  *
  * Key responsibilities:
- * - Renders a compact card with thumbnail, title, domain badge, and node type indicator
+ * - Renders a compact card with thumbnail, title, and node type indicator
  * - Applies visual styling based on node type (start, milestone, end, default)
  * - Provides connection handles for linking nodes in the graph
  * - Memoized for performance in large graph canvases
@@ -15,33 +15,25 @@ import { memo } from 'react'
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import type { GraphNodeType } from '@/lib/supabase/types'
+import type { EpisodeNodeData } from '../graph-utils'
 
-export type PodcastNodeData = {
-  podcastId: string
-  title: string | null
-  domain: string | null
-  thumbnailUrl: string | null
-  nodeType: GraphNodeType
-}
+type EpisodeNodeType = Node<EpisodeNodeData, 'episode'>
 
-type PodcastNodeType = Node<PodcastNodeData, 'podcast'>
-
-const nodeTypeStyles: Record<GraphNodeType, string> = {
+const nodeTypeStyles: Record<string, string> = {
   default: 'border-border',
   start: 'border-green-500 ring-1 ring-green-500/20',
   milestone: 'border-yellow-500 ring-1 ring-yellow-500/20',
   end: 'border-red-500 ring-1 ring-red-500/20',
 }
 
-const nodeTypeLabels: Record<GraphNodeType, string> = {
+const nodeTypeLabels: Record<string, string> = {
   default: '',
   start: 'Start',
   milestone: 'Milestone',
   end: 'End',
 }
 
-function PodcastNodeComponent({ data, selected }: NodeProps<PodcastNodeType>) {
+function EpisodeNodeComponent({ data, selected }: NodeProps<EpisodeNodeType>) {
   const nodeType = data.nodeType ?? 'default'
 
   const handleStyle = {
@@ -71,19 +63,12 @@ function PodcastNodeComponent({ data, selected }: NodeProps<PodcastNodeType>) {
             />
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium leading-tight line-clamp-2">{data.title ?? 'Untitled'}</p>
-            <div className="flex items-center gap-1 mt-1">
-              {data.domain && (
-              <Badge variant="outline" className="text-[10px] px-1 py-0">
-                {data.domain}
+            <p className="text-xs font-medium leading-tight line-clamp-2">{data.title}</p>
+            {nodeTypeLabels[nodeType] && (
+              <Badge variant="secondary" className="text-[10px] px-1 py-0 mt-1">
+                {nodeTypeLabels[nodeType]}
               </Badge>
-              )}
-              {nodeTypeLabels[nodeType] && (
-                <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                  {nodeTypeLabels[nodeType]}
-                </Badge>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -92,4 +77,4 @@ function PodcastNodeComponent({ data, selected }: NodeProps<PodcastNodeType>) {
   )
 }
 
-export const PodcastNode = memo(PodcastNodeComponent)
+export const EpisodeNode = memo(EpisodeNodeComponent)

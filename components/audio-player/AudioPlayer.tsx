@@ -123,7 +123,7 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, onDurationModeCha
                 : 'border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
             }`}
           >
-            Short
+            Brief summary
           </button>
           <button
             onClick={() => switchDuration('long')}
@@ -133,7 +133,7 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, onDurationModeCha
                 : 'border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
             }`}
           >
-            Long
+            Detailed overview
           </button>
         </div>
       )}

@@ -6,14 +6,13 @@
  */
 
 import { z } from 'zod'
-import type { Domain, ContentType } from '@/lib/supabase/types'
+import type { Domain } from '@/lib/supabase/types'
 
 export const uploadFormSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  domain: z.string().optional(),
-  year: z.number().int().min(2000).max(2100).optional(),
-  content_type: z.enum(['technical', 'learning_series']).optional(),
+  domain: z.string().min(1, 'Domain is required'),
+  year: z.number().int().min(2000).max(2100),
   tags: z.array(z.string()),
 })
 
@@ -24,9 +23,8 @@ export interface UploadFormProps {
     id: string
     title: string | null
     description: string | null
-    domain: Domain | null
-    year: number | null
-    content_type: ContentType | null
+    domain: Domain
+    year: number
     tags: string[]
   }
   onSuccess?: (podcast: {

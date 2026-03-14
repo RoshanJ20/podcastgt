@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { DOMAINS } from '@/lib/supabase/types'
+import { LEARNING_SERIES_DOMAINS } from '@/lib/supabase/types'
 import { learningGraphSchema, type LearningGraphFormValues } from '@/lib/schemas/learning-graph'
 import { Loader2, Trash2, Pencil, Eye, EyeOff, GitBranch, List } from 'lucide-react'
 import type { LearningGraph } from '@/lib/supabase/types'
@@ -62,7 +62,7 @@ export function LearningGraphManager({ graphs: initialGraphs }: { graphs: Learni
       })
       if (!res.ok) throw new Error('Failed to create graph')
       const graph = await res.json()
-      setGraphs((prev) => [{ ...graph, node_count: 0 }, ...prev])
+      setGraphs((prev) => [{ ...graph, episode_count: 0 }, ...prev])
       form.reset()
       toast.success('Learning path created!')
       router.refresh()
@@ -148,7 +148,7 @@ export function LearningGraphManager({ graphs: initialGraphs }: { graphs: Learni
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {DOMAINS.map((domain) => (
+                          {LEARNING_SERIES_DOMAINS.map((domain) => (
                             <SelectItem key={domain} value={domain}>{domain}</SelectItem>
                           ))}
                         </SelectContent>
@@ -225,7 +225,7 @@ export function LearningGraphManager({ graphs: initialGraphs }: { graphs: Learni
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {graph.domain}
-                  {graph.node_count !== undefined && ` · ${graph.node_count} bulletins`}
+                  {graph.episode_count !== undefined && ` · ${graph.episode_count} episodes`}
                 </p>
                 {graph.description && (
                   <p className="text-sm text-muted-foreground mt-1">{graph.description}</p>

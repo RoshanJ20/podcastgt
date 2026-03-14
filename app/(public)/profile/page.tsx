@@ -33,7 +33,7 @@ export default async function ProfilePage() {
   // Fetch learning path progress
   const { data: progress } = await supabase
     .from('user_progress')
-    .select('*, graph:learning_graphs(id, title, domain), node:learning_graph_nodes(id, label, podcast:podcasts(id, title))')
+    .select('*, graph:learning_graphs(id, title, domain), episode:episodes(id, title)')
     .eq('user_id', user.id)
     .order('completed_at', { ascending: false })
 

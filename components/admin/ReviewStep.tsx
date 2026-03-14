@@ -21,11 +21,11 @@ interface ReviewStepProps {
 /** Metadata about each file slot for the summary list. */
 const FILE_SLOTS = [
   { key: 'thumbnail', label: 'Thumbnail', Icon: ImageIcon },
-  { key: 'audioShort', label: 'Audio (Short)', Icon: Music },
-  { key: 'audioLong', label: 'Audio (Long)', Icon: Music },
-  { key: 'bulletin', label: 'Bulletin PDF', Icon: FileText },
-  { key: 'transcriptShort', label: 'Transcript (Short)', Icon: FileText },
-  { key: 'transcriptLong', label: 'Transcript (Long)', Icon: FileText },
+  { key: 'audioShort', label: 'Audio (Brief Summary)', Icon: Music },
+  { key: 'audioLong', label: 'Audio (Detailed Overview)', Icon: Music },
+  { key: 'bulletin', label: 'Attachment PDF', Icon: FileText },
+  { key: 'transcriptShort', label: 'Transcript (Brief)', Icon: FileText },
+  { key: 'transcriptLong', label: 'Transcript (Detailed)', Icon: FileText },
 ] as const
 
 export function ReviewStep({
@@ -102,17 +102,7 @@ function MetadataSummary({
       <div className="space-y-3">
         <Detail label="Title" value={values.title || '\u2014'} />
         <Detail label="Domain" value={values.domain || '\u2014'} />
-        <Detail label="Year" value={values.year != null ? String(values.year) : '\u2014'} />
-        <Detail
-          label="Content Type"
-          value={
-            values.content_type === 'learning_series'
-              ? 'Learning Series'
-              : values.content_type === 'technical'
-                ? 'Bulletin'
-                : '\u2014'
-          }
-        />
+        <Detail label="Year" value={String(values.year)} />
       </div>
       <div className="space-y-3">
         {values.description && (

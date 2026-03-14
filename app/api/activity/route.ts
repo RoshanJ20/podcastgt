@@ -50,7 +50,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 /**
  * Record a new activity event for the authenticated user.
  *
- * @param request - JSON body with `activity_type` (required), optional `podcast_id`, `graph_id`, `metadata`.
+ * @param request - JSON body with `activity_type` (required), optional `episode_id`, `graph_id`, `metadata`.
  * @returns The newly created activity entry with status 201.
  * @throws 401 if user is not authenticated.
  * @throws 400 if `activity_type` is missing.
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return unauthorizedResponse()
 
-  const { activity_type, podcast_id, graph_id, metadata } = await request.json()
+  const { activity_type, episode_id, graph_id, metadata } = await request.json()
 
   if (!activity_type || typeof activity_type !== 'string') {
     return validationErrorResponse('activity_type is required and must be a string')
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .insert({
       user_id: user.id,
       activity_type,
-      podcast_id: podcast_id ?? null,
+      episode_id: episode_id ?? null,
       graph_id: graph_id ?? null,
       metadata: metadata ?? {},
     })

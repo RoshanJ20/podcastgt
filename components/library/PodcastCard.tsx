@@ -59,7 +59,7 @@ export function PodcastCard({ podcast }: { podcast: Podcast }) {
                 </span>
               )}
               {podcast.bulletin_urls?.length > 0 && (
-                <span className="text-[#38BDF8] font-medium" title="Bulletin available">PDF</span>
+                <span className="text-[#38BDF8] font-medium" title="Attachment available">PDF</span>
               )}
             </div>
           </div>

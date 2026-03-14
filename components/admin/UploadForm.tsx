@@ -44,12 +44,12 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
       ? {
           title: editPodcast.title ?? undefined,
           description: editPodcast.description ?? '',
-          domain: editPodcast.domain ?? undefined,
-          year: editPodcast.year ?? undefined,
-          content_type: editPodcast.content_type ?? undefined,
+          domain: editPodcast.domain,
+          year: editPodcast.year,
           tags: editPodcast.tags,
         }
       : {
+          year: new Date().getFullYear(),
           tags: [],
         },
   })
@@ -57,7 +57,15 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
   const tags = form.watch('tags')
   const values = form.watch()
 
-  const nextStep = () => {
+  const nextStep = async () => {
+    if (step === 1) {
+      const valid = await form.trigger([
+        'title',
+        'domain',
+        'year',
+      ])
+      if (!valid) return
+    }
     setStep((s) => Math.min(s + 1, 3))
   }
 
@@ -81,7 +89,7 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
         editPodcast?.id
       )
 
-      toast.success(editPodcast ? 'Bulletin updated!' : 'Bulletin uploaded!')
+      toast.success(editPodcast ? 'Release updated!' : 'Release uploaded!')
       if (onSuccess) {
         onSuccess(podcast)
       } else {
@@ -188,7 +196,7 @@ function NavigationButtons({
             className="btn-gradient px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center gap-1.5"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isEdit ? 'Save Changes' : 'Upload Bulletin'}
+            {isEdit ? 'Save Changes' : 'Upload Release'}
           </button>
         )}
       </div>
