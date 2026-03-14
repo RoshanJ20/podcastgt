@@ -231,6 +231,7 @@ function LearningPathViewerInner({
                 nodeType: selectedEpisode.nodeType,
               }}
               episodeId={selectedEpisode.episodeId}
+              graphId={graph.id}
               isCompleted={completedEpisodeIds.has(selectedEpisode.episodeId)}
               isLoggedIn={isLoggedIn}
               onToggleComplete={handleToggleComplete}

@@ -31,6 +31,7 @@ import {
   Users,
   LogOut,
   GitBranch,
+  BarChart3,
   Moon,
   Sun,
   ExternalLink,
@@ -56,6 +57,7 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/upload', label: 'Upload Release', icon: Upload },
   { href: '/admin/learning-graphs', label: 'Learning Paths', icon: GitBranch },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
 const emptySubscribe = () => () => {}

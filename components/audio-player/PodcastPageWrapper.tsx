@@ -21,6 +21,7 @@ import { BookmarkPanel } from './BookmarkPanel'
 import { BulletinViewer } from './BulletinViewer'
 import { DOMAIN_COLORS } from '@/lib/supabase/types'
 import type { Podcast, TranscriptSegment } from '@/lib/supabase/types'
+import { useListenTracker } from '@/hooks/use-listen-tracker'
 
 interface Props {
   podcast: Podcast
@@ -29,6 +30,7 @@ interface Props {
 
 function InnerLayout({ podcast, isLoggedIn }: Props) {
   const { currentTime, seekTo, activeAudioType, setCurrentTime, handleSeek, setActiveAudioType } = usePodcastPlayer()
+  const listenTracker = useListenTracker({ podcastId: podcast.id })
   const transcript = podcast.transcripts?.find((t) => t.transcript_type === activeAudioType) ?? podcast.transcripts?.[0]
   const segments = (transcript?.segments as TranscriptSegment[]) ?? []
 
@@ -83,8 +85,9 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
         <AudioPlayer
           shortUrl={podcast.audio_short_url}
           longUrl={podcast.audio_long_url}
-          onTimeUpdate={setCurrentTime}
+          onTimeUpdate={(t) => { setCurrentTime(t); listenTracker.onTimeUpdate(t) }}
           onDurationModeChange={setActiveAudioType}
+          onPlay={listenTracker.onPlay}
           seekTo={seekTo}
         />
 
