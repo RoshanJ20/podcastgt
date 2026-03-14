@@ -70,8 +70,10 @@ export function GraphEditorCanvas({
     if (!autoEditNodeId) return
     const node = nodes.find((n) => n.id === autoEditNodeId)
     if (node) {
-      setEditModalNode({ nodeId: node.id, data: node.data as EpisodeNodeData })
-      onAutoEditDone?.()
+      queueMicrotask(() => {
+        setEditModalNode({ nodeId: node.id, data: node.data as EpisodeNodeData })
+        onAutoEditDone?.()
+      })
     }
   }, [autoEditNodeId, nodes, onAutoEditDone])
 

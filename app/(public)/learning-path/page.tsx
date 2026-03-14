@@ -39,7 +39,7 @@ export default async function LearningPathsPage({ searchParams }: PageProps) {
   })) as LearningGraph[]
 
   // Fetch per-graph completion counts for logged-in user
-  let progressMap: Record<string, number> = {}
+  const progressMap: Record<string, number> = {}
   if (user) {
     const { data: progress } = await supabase
       .from('user_progress')
