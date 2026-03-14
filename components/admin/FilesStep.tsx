@@ -40,7 +40,7 @@ export function FilesStep({ files, onFilesChange }: FilesStepProps) {
         />
         <FileDropZone
           accept="audio/*"
-          label="Audio — Short Duration"
+          label="Audio — Brief Summary"
           icon="audio"
           files={files.audioShort}
           onFilesChange={(f) =>
@@ -52,7 +52,7 @@ export function FilesStep({ files, onFilesChange }: FilesStepProps) {
       <div className="grid grid-cols-2 gap-4">
         <FileDropZone
           accept="audio/*"
-          label="Audio — Long Duration"
+          label="Audio — Detailed Overview"
           icon="audio"
           files={files.audioLong}
           onFilesChange={(f) =>
@@ -61,7 +61,7 @@ export function FilesStep({ files, onFilesChange }: FilesStepProps) {
         />
         <FileDropZone
           accept=".pdf"
-          label="Bulletin (PDF)"
+          label="Attachment (PDF)"
           icon="pdf"
           files={files.bulletin}
           onFilesChange={(f) =>

@@ -1,21 +1,20 @@
 /**
- * @module ViewerPodcastNode
+ * @module ViewerEpisodeNode
  *
- * A read-only React Flow node component that renders a podcast card
- * within the learning path graph viewer. Displays the podcast title,
- * domain badge, optional thumbnail, and completion status indicator.
+ * A read-only React Flow node component that renders an episode card
+ * within the learning path graph viewer. Displays the episode title,
+ * optional thumbnail, and completion status indicator.
  * Styled differently based on node type (start, milestone, end, default).
  */
 
 import { memo } from 'react'
 import { Handle, Position, type NodeProps, type Node, type NodeTypes } from '@xyflow/react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import { CheckCircle2 } from 'lucide-react'
 import type { GraphNodeType } from '@/lib/supabase/types'
 import type { ViewerNodeData } from './graph-utils'
 
-type ViewerNodeType = Node<ViewerNodeData, 'viewerPodcast'>
+type ViewerNodeType = Node<ViewerNodeData, 'viewerEpisode'>
 
 const nodeTypeStyles: Record<GraphNodeType, string> = {
   default: 'border-border',
@@ -24,7 +23,7 @@ const nodeTypeStyles: Record<GraphNodeType, string> = {
   end: 'border-red-500 ring-1 ring-red-500/20',
 }
 
-const ViewerPodcastNode = memo(function ViewerPodcastNode({
+const ViewerEpisodeNode = memo(function ViewerEpisodeNode({
   data,
 }: NodeProps<ViewerNodeType>) {
   const nodeType = data.nodeType ?? 'default'
@@ -56,9 +55,6 @@ const ViewerPodcastNode = memo(function ViewerPodcastNode({
             <p className="text-xs font-medium leading-tight line-clamp-2">
               {data.title}
             </p>
-            <Badge variant="outline" className="text-[10px] px-1 py-0 mt-1">
-              {data.domain}
-            </Badge>
           </div>
         </div>
       </div>
@@ -69,5 +65,5 @@ const ViewerPodcastNode = memo(function ViewerPodcastNode({
 
 /** Pre-configured node type mapping for React Flow's nodeTypes prop. */
 export const viewerNodeTypes: NodeTypes = {
-  viewerPodcast: ViewerPodcastNode,
+  viewerEpisode: ViewerEpisodeNode,
 }

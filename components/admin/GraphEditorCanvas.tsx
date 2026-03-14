@@ -2,7 +2,7 @@
  * @module GraphEditorCanvas
  *
  * Renders the React Flow canvas with background, controls, minimap,
- * the podcast picker sidebar, and the node-edit modal. This component
+ * the episode sidebar, and the episode-edit modal. This component
  * is responsible for the visual editing surface of the graph editor.
  */
 
@@ -21,60 +21,63 @@ import {
   type OnConnect,
   BackgroundVariant,
 } from '@xyflow/react'
-import { useCallback, useState } from 'react'
-import { PodcastNode } from './graph-nodes/PodcastNode'
-import { NodeEditModal } from './graph-nodes/NodeEditModal'
-import { GraphPodcastPicker } from './GraphPodcastPicker'
+import { useCallback, useState, useEffect } from 'react'
+import { EpisodeNode } from './graph-nodes/EpisodeNode'
+import { EpisodeEditModal, type EpisodeData } from './graph-nodes/EpisodeEditModal'
+import { EpisodeSidebar } from './EpisodeSidebar'
 import type { GraphNodeType } from '@/lib/supabase/types'
-import type { ExtendedPodcastNodeData, PodcastSummary } from './graph-utils'
+import type { EpisodeNodeData } from './graph-utils'
 
 const nodeTypes: NodeTypes = {
-  podcast: PodcastNode,
+  episode: EpisodeNode,
 }
 
-type FlowNode = Node<ExtendedPodcastNodeData>
+type FlowNode = Node<EpisodeNodeData>
 
 export interface GraphEditorCanvasProps {
   nodes: FlowNode[]
   edges: Edge[]
-  podcasts: PodcastSummary[]
-  usedPodcastIds: Set<string>
+  episodeCount: number
   onNodesChange: OnNodesChange<FlowNode>
   onEdgesChange: OnEdgesChange<Edge>
   onConnect: OnConnect
-  onAddPodcast: (podcast: PodcastSummary) => void
-  onPodcastCreated: (podcast: PodcastSummary) => void
+  onAddEpisode: () => void
   onChangeNodeType: (nodeId: string, nodeType: GraphNodeType) => void
-  onPodcastUpdate: (updated: {
-    id: string
-    title: string
-    description: string | null
-    domain: string
-    thumbnailUrl: string | null
-  }) => void
+  onEpisodeUpdate: (nodeId: string, updated: EpisodeData) => void
+  autoEditNodeId?: string | null
+  onAutoEditDone?: () => void
 }
 
 export function GraphEditorCanvas({
   nodes,
   edges,
-  podcasts,
-  usedPodcastIds,
+  episodeCount,
   onNodesChange,
   onEdgesChange,
   onConnect,
-  onAddPodcast,
-  onPodcastCreated,
+  onAddEpisode,
   onChangeNodeType,
-  onPodcastUpdate,
+  onEpisodeUpdate,
+  autoEditNodeId,
+  onAutoEditDone,
 }: GraphEditorCanvasProps) {
   const [editModalNode, setEditModalNode] = useState<{
     nodeId: string
-    data: ExtendedPodcastNodeData
+    data: EpisodeNodeData
   } | null>(null)
+
+  useEffect(() => {
+    if (!autoEditNodeId) return
+    const node = nodes.find((n) => n.id === autoEditNodeId)
+    if (node) {
+      setEditModalNode({ nodeId: node.id, data: node.data as EpisodeNodeData })
+      onAutoEditDone?.()
+    }
+  }, [autoEditNodeId, nodes, onAutoEditDone])
 
   const handleNodeDoubleClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      const data = node.data as ExtendedPodcastNodeData
+      const data = node.data as EpisodeNodeData
       setEditModalNode({ nodeId: node.id, data })
     },
     []
@@ -111,43 +114,31 @@ export function GraphEditorCanvas({
           </ReactFlow>
         </div>
         <div className="w-64 border-l bg-card overflow-hidden">
-          <GraphPodcastPicker
-            podcasts={podcasts}
-            usedPodcastIds={usedPodcastIds}
-            onAddPodcast={onAddPodcast}
-            onPodcastCreated={onPodcastCreated}
+          <EpisodeSidebar
+            episodeCount={episodeCount}
+            onAddEpisode={onAddEpisode}
           />
         </div>
       </div>
 
       {editModalNode && (
-        <NodeEditModal
+        <EpisodeEditModal
           open={!!editModalNode}
           onOpenChange={(open) => {
             if (!open) setEditModalNode(null)
           }}
           nodeId={editModalNode.nodeId}
-          podcast={{
-            id: editModalNode.data.podcastId,
+          episode={{
             title: editModalNode.data.title,
-            description: editModalNode.data.description ?? null,
-            domain: editModalNode.data.domain,
+            description: editModalNode.data.description,
             thumbnailUrl: editModalNode.data.thumbnailUrl,
-            audioShortUrl: editModalNode.data.audioShortUrl ?? null,
-            audioLongUrl: editModalNode.data.audioLongUrl ?? null,
-            bulletinUrl: editModalNode.data.bulletinUrl ?? null,
+            audioUrl: editModalNode.data.audioUrl,
+            transcript: editModalNode.data.transcript,
+            nodeType: editModalNode.data.nodeType,
           }}
-          nodeType={editModalNode.data.nodeType}
-          onNodeTypeChange={(nodeType) => {
-            onChangeNodeType(editModalNode.nodeId, nodeType)
-            setEditModalNode((prev) =>
-              prev
-                ? { ...prev, data: { ...prev.data, nodeType } }
-                : null
-            )
-          }}
-          onPodcastUpdate={(updated) => {
-            onPodcastUpdate(updated)
+          onEpisodeUpdate={(nodeId, updated) => {
+            onEpisodeUpdate(nodeId, updated)
+            onChangeNodeType(nodeId, updated.nodeType)
             setEditModalNode(null)
           }}
         />

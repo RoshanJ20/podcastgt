@@ -57,9 +57,6 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
                 {podcast.domain}
               </span>
               <Badge variant="secondary" className="font-semibold">{podcast.year}</Badge>
-              {podcast.content_type === 'learning_series' && (
-                <Badge className="btn-gradient border-0">Learning Series</Badge>
-              )}
             </div>
             <h1 className="text-xl font-bold leading-snug font-[family-name:var(--font-heading)]">{podcast.title}</h1>
             {podcast.description && (

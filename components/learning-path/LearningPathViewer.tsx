@@ -1,12 +1,3 @@
-/**
- * @module LearningPathViewer
- *
- * Top-level viewer for a learning path graph. Wraps the inner viewer
- * in a ReactFlowProvider and manages progress state (fetching completed
- * nodes, toggling completion). Supports both linear (ordered list) and
- * graph (React Flow canvas with mobile list fallback) display modes.
- */
-
 'use client'
 
 import { useMemo, useState, useEffect, useCallback } from 'react'
@@ -20,9 +11,9 @@ import {
   BackgroundVariant,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { NodeDetailModal } from './NodeDetailModal'
+import { EpisodeDetailPanel } from './EpisodeDetailPanel'
 import { NodeList } from './NodeList'
-import { viewerNodeTypes } from './ViewerPodcastNode'
+import { viewerNodeTypes } from './ViewerEpisodeNode'
 import {
   toFlowNodes,
   toFlowEdges,
@@ -32,8 +23,9 @@ import {
 } from './graph-utils'
 import type {
   LearningGraph,
-  LearningGraphNode,
+  Episode,
 } from '@/lib/supabase/types'
+import { cn } from '@/lib/utils'
 
 function LearningPathViewerInner({
   graph,
@@ -42,9 +34,9 @@ function LearningPathViewerInner({
   graph: LearningGraph
   isLoggedIn: boolean
 }) {
-  const [selectedPodcast, setSelectedPodcast] =
+  const [selectedEpisode, setSelectedEpisode] =
     useState<ViewerNodeData | null>(null)
-  const [completedNodeIds, setCompletedNodeIds] = useState<Set<string>>(
+  const [completedEpisodeIds, setCompletedEpisodeIds] = useState<Set<string>>(
     new Set(),
   )
 
@@ -52,9 +44,9 @@ function LearningPathViewerInner({
     if (!isLoggedIn) return
     fetch(`/api/progress?graph_id=${graph.id}`)
       .then((response) => response.json())
-      .then((data: { node_id: string }[]) => {
+      .then((data: { episode_id: string }[]) => {
         if (Array.isArray(data)) {
-          setCompletedNodeIds(new Set(data.map((entry) => entry.node_id)))
+          setCompletedEpisodeIds(new Set(data.map((entry) => entry.episode_id)))
         }
       })
       .catch((error: unknown) => {
@@ -63,19 +55,19 @@ function LearningPathViewerInner({
   }, [graph.id, isLoggedIn])
 
   const handleToggleComplete = useCallback(
-    async (nodeId: string) => {
-      const isCompleted = completedNodeIds.has(nodeId)
+    async (episodeId: string) => {
+      const isCompleted = completedEpisodeIds.has(episodeId)
 
       if (isCompleted) {
         const response = await fetch('/api/progress', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ node_id: nodeId }),
+          body: JSON.stringify({ episode_id: episodeId }),
         })
         if (response.ok) {
-          setCompletedNodeIds((prev) => {
+          setCompletedEpisodeIds((prev) => {
             const next = new Set(prev)
-            next.delete(nodeId)
+            next.delete(episodeId)
             return next
           })
         }
@@ -83,16 +75,17 @@ function LearningPathViewerInner({
         const response = await fetch('/api/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ graph_id: graph.id, node_id: nodeId }),
+          body: JSON.stringify({ graph_id: graph.id, episode_id: episodeId }),
         })
         if (response.ok) {
-          setCompletedNodeIds((prev) => new Set(prev).add(nodeId))
+          setCompletedEpisodeIds((prev) => new Set(prev).add(episodeId))
           fetch('/api/activity', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              activity_type: 'complete_node',
+              activity_type: 'complete_episode',
               graph_id: graph.id,
+              episode_id: episodeId,
             }),
           }).catch((error: unknown) => {
             console.error('Failed to log activity:', error)
@@ -100,57 +93,58 @@ function LearningPathViewerInner({
         }
       }
     },
-    [completedNodeIds, graph.id],
+    [completedEpisodeIds, graph.id],
   )
 
   const isLinear = graph.path_type === 'linear'
   const flowNodes = useMemo(
-    () => toFlowNodes(graph.nodes ?? [], completedNodeIds),
-    [graph.nodes, completedNodeIds],
+    () => toFlowNodes(graph.episodes ?? [], completedEpisodeIds),
+    [graph.episodes, completedEpisodeIds],
   )
   const flowEdges = useMemo(
     () => toFlowEdges(graph.edges ?? []),
     [graph.edges],
   )
-  const orderedNodes = useMemo(() => {
-    if (isLinear) return linearSort(graph.nodes ?? [])
-    return topologicalSort(graph.nodes ?? [], graph.edges ?? [])
-  }, [graph.nodes, graph.edges, isLinear])
+  const orderedEpisodes = useMemo(() => {
+    if (isLinear) return linearSort(graph.episodes ?? [])
+    return topologicalSort(graph.episodes ?? [], graph.edges ?? [])
+  }, [graph.episodes, graph.edges, isLinear])
 
   const handleFlowNodeClick = (_: React.MouseEvent, node: Node) => {
-    setSelectedPodcast(node.data as ViewerNodeData)
+    const data = node.data as ViewerNodeData
+    setSelectedEpisode(data)
   }
 
-  const handleListNodeClick = (node: LearningGraphNode) => {
-    setSelectedPodcast({
-      podcastId: node.podcast_id,
-      nodeId: node.id,
-      title: node.podcast?.title ?? 'Untitled',
-      description: node.podcast?.description ?? null,
-      domain: node.podcast?.domain ?? '',
-      thumbnailUrl: node.podcast?.thumbnail_url ?? null,
-      audioShortUrl: node.podcast?.audio_short_url ?? null,
-      audioLongUrl: node.podcast?.audio_long_url ?? null,
-      bulletinUrl: node.podcast?.bulletin_url ?? null,
-      nodeType: node.node_type,
-      completed: completedNodeIds.has(node.id),
+  const handleListEpisodeClick = (episode: Episode) => {
+    setSelectedEpisode({
+      episodeId: episode.id,
+      title: episode.title,
+      description: episode.description,
+      thumbnailUrl: episode.thumbnail_url,
+      audioUrl: episode.audio_url,
+      transcript: episode.transcript,
+      nodeType: episode.node_type,
+      completed: completedEpisodeIds.has(episode.id),
     })
   }
 
-  const totalNodes = (graph.nodes ?? []).length
-  const completedCount = completedNodeIds.size
+  const totalEpisodes = (graph.episodes ?? []).length
+  const completedCount = completedEpisodeIds.size
   const progressPercent =
-    totalNodes > 0
-      ? Math.round((completedCount / totalNodes) * 100)
+    totalEpisodes > 0
+      ? Math.round((completedCount / totalEpisodes) * 100)
       : 0
+
+  const panelOpen = !!selectedEpisode
 
   return (
     <>
-      {isLoggedIn && totalNodes > 0 && (
+      {/* Progress bar */}
+      {isLoggedIn && totalEpisodes > 0 && (
         <div className="mb-4 space-y-1.5">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
-              {completedCount} of {totalNodes} completed
+              {completedCount} of {totalEpisodes} completed
             </span>
             <span className="font-medium text-primary">
               {progressPercent}%
@@ -165,66 +159,86 @@ function LearningPathViewerInner({
         </div>
       )}
 
-      {isLinear ? (
-        <NodeList
-          nodes={orderedNodes}
-          completedNodeIds={completedNodeIds}
-          onNodeClick={handleListNodeClick}
-        />
-      ) : (
-        <>
-          <div className="hidden md:block h-[600px] rounded-lg border overflow-hidden">
-            <ReactFlow
-              nodes={flowNodes}
-              edges={flowEdges}
-              nodeTypes={viewerNodeTypes}
-              onNodeClick={handleFlowNodeClick}
-              nodesDraggable={false}
-              nodesConnectable={false}
-              fitView
-              className="bg-background"
-            >
-              <Background
-                variant={BackgroundVariant.Dots}
-                gap={20}
-                size={1}
+      {/* Main content area: graph/list + side panel */}
+      <div className="flex gap-0 rounded-lg border overflow-hidden bg-background">
+        {/* Left side: graph or list */}
+        <div
+          className={cn(
+            'transition-all duration-300 ease-in-out min-h-[500px]',
+            panelOpen ? 'w-[55%] md:w-[60%]' : 'w-full',
+          )}
+        >
+          {isLinear ? (
+            <div className="p-4 h-full overflow-y-auto">
+              <NodeList
+                episodes={orderedEpisodes}
+                completedEpisodeIds={completedEpisodeIds}
+                onEpisodeClick={handleListEpisodeClick}
+                selectedEpisodeId={selectedEpisode?.episodeId}
               />
-              <Controls showInteractive={false} />
-              <MiniMap pannable zoomable className="!bg-card !border" />
-            </ReactFlow>
-          </div>
-          <div className="md:hidden">
-            <NodeList
-              nodes={orderedNodes}
-              completedNodeIds={completedNodeIds}
-              onNodeClick={handleListNodeClick}
-            />
-          </div>
-        </>
-      )}
+            </div>
+          ) : (
+            <>
+              <div className="hidden md:block h-[500px]">
+                <ReactFlow
+                  nodes={flowNodes}
+                  edges={flowEdges}
+                  nodeTypes={viewerNodeTypes}
+                  onNodeClick={handleFlowNodeClick}
+                  nodesDraggable={false}
+                  nodesConnectable={false}
+                  fitView
+                  className="bg-background"
+                >
+                  <Background
+                    variant={BackgroundVariant.Dots}
+                    gap={20}
+                    size={1}
+                  />
+                  <Controls showInteractive={false} />
+                  {!panelOpen && (
+                    <MiniMap pannable zoomable className="!bg-card !border" />
+                  )}
+                </ReactFlow>
+              </div>
+              <div className="md:hidden p-4">
+                <NodeList
+                  episodes={orderedEpisodes}
+                  completedEpisodeIds={completedEpisodeIds}
+                  onEpisodeClick={handleListEpisodeClick}
+                  selectedEpisodeId={selectedEpisode?.episodeId}
+                />
+              </div>
+            </>
+          )}
+        </div>
 
-      {selectedPodcast && (
-        <NodeDetailModal
-          open={!!selectedPodcast}
-          onOpenChange={(open) => {
-            if (!open) setSelectedPodcast(null)
-          }}
-          podcast={{
-            id: selectedPodcast.podcastId,
-            title: selectedPodcast.title,
-            description: selectedPodcast.description,
-            domain: selectedPodcast.domain,
-            thumbnailUrl: selectedPodcast.thumbnailUrl,
-            audioShortUrl: selectedPodcast.audioShortUrl,
-            audioLongUrl: selectedPodcast.audioLongUrl,
-            bulletinUrl: selectedPodcast.bulletinUrl,
-          }}
-          nodeId={selectedPodcast.nodeId}
-          isCompleted={completedNodeIds.has(selectedPodcast.nodeId)}
-          isLoggedIn={isLoggedIn}
-          onToggleComplete={handleToggleComplete}
-        />
-      )}
+        {/* Right side panel */}
+        <div
+          className={cn(
+            'transition-all duration-300 ease-in-out overflow-hidden',
+            panelOpen ? 'w-[45%] md:w-[40%] opacity-100' : 'w-0 opacity-0',
+          )}
+        >
+          {selectedEpisode && (
+            <EpisodeDetailPanel
+              episode={{
+                title: selectedEpisode.title,
+                description: selectedEpisode.description,
+                thumbnailUrl: selectedEpisode.thumbnailUrl,
+                audioUrl: selectedEpisode.audioUrl,
+                transcript: selectedEpisode.transcript,
+                nodeType: selectedEpisode.nodeType,
+              }}
+              episodeId={selectedEpisode.episodeId}
+              isCompleted={completedEpisodeIds.has(selectedEpisode.episodeId)}
+              isLoggedIn={isLoggedIn}
+              onToggleComplete={handleToggleComplete}
+              onClose={() => setSelectedEpisode(null)}
+            />
+          )}
+        </div>
+      </div>
     </>
   )
 }

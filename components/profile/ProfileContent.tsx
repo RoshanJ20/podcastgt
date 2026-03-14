@@ -41,20 +41,16 @@ interface BookmarkWithPodcast {
 interface ProgressWithGraph {
   id: string
   graph_id: string
-  node_id: string
+  episode_id: string
   completed_at: string
   graph?: {
     id: string
     title: string
     domain: Domain
   }
-  node?: {
+  episode?: {
     id: string
-    label: string | null
-    podcast?: {
-      id: string
-      title: string
-    }
+    title: string
   }
 }
 
@@ -134,9 +130,9 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <Button variant="outline" size="sm" asChild>
-                <Link href="/progress">
+                <Link href="/learning-path">
                   <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
-                  Analytics
+                  Learning Paths
                 </Link>
               </Button>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
@@ -152,7 +148,7 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
         <Card className="glass-card">
           <CardContent className="pt-4 pb-3 text-center">
             <p className="text-2xl font-bold font-[family-name:var(--font-heading)] text-green-500">{progress.length}</p>
-            <p className="text-[11px] text-muted-foreground">Bulletins Done</p>
+            <p className="text-[11px] text-muted-foreground">Episodes Done</p>
           </CardContent>
         </Card>
         <Card className="glass-card">
@@ -208,12 +204,12 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
                       {entries.map((entry) => (
                         <Badge key={entry.id} variant="secondary" className="text-xs">
                           <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
-                          {entry.node?.podcast?.title ?? entry.node?.label ?? 'Completed'}
+                          {entry.episode?.title ?? 'Completed'}
                         </Badge>
                       ))}
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
-                      {entries.length} bulletin{entries.length !== 1 ? 's' : ''} completed
+                      {entries.length} episode{entries.length !== 1 ? 's' : ''} completed
                     </p>
                   </CardContent>
                 </Card>
@@ -235,9 +231,9 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
           <Card className="glass-card">
             <CardContent className="py-8 text-center text-sm text-muted-foreground">
               <Bookmark className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p>No bookmarks yet. Listen to a bulletin and add bookmarks at key moments.</p>
-              <Link href="/" className="text-primary hover:underline text-sm mt-2 inline-block">
-                Browse bulletins
+              <p>No bookmarks yet. Listen to a release and add bookmarks at key moments.</p>
+              <Link href="/bulletins" className="text-primary hover:underline text-sm mt-2 inline-block">
+                Browse releases
               </Link>
             </CardContent>
           </Card>
@@ -261,7 +257,7 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
                         href={`/podcast/${bookmark.podcast_id}`}
                         className="text-sm font-medium hover:underline line-clamp-1"
                       >
-                        {bookmark.podcast?.title ?? 'Unknown bulletin'}
+                        {bookmark.podcast?.title ?? 'Unknown release'}
                       </Link>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs font-mono text-primary flex items-center gap-1">

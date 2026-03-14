@@ -1,7 +1,7 @@
 /**
  * @module GraphEditorToolbar
  *
- * Toolbar component for the learning-graph editor. Renders navigation,
+ * Toolbar component for the learning-path editor. Renders navigation,
  * graph title, publish/draft badge, node-type selector for the currently
  * selected node, auto-layout button, publish toggle, and save button.
  */
@@ -21,14 +21,14 @@ import {
 import { Save, ArrowLeft, Layout, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { GRAPH_NODE_TYPES } from '@/lib/supabase/types'
 import type { GraphNodeType } from '@/lib/supabase/types'
-import type { ExtendedPodcastNodeData } from './graph-utils'
+import type { EpisodeNodeData } from './graph-utils'
 import type { Node } from '@xyflow/react'
 
 export interface GraphEditorToolbarProps {
   graphTitle: string
   isPublished: boolean
   saving: boolean
-  selectedNode: Node<ExtendedPodcastNodeData> | undefined
+  selectedNode: Node<EpisodeNodeData> | undefined
   onAutoLayout: () => void
   onTogglePublish: () => void
   onSave: () => void
@@ -65,7 +65,7 @@ export function GraphEditorToolbar({
       <div className="flex items-center gap-2">
         {selectedNode && (
           <Select
-            value={(selectedNode.data as ExtendedPodcastNodeData).nodeType}
+            value={(selectedNode.data as EpisodeNodeData).nodeType}
             onValueChange={(v) =>
               onChangeNodeType(selectedNode.id, v as GraphNodeType)
             }

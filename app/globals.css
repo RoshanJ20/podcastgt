@@ -173,12 +173,12 @@
   }
 
   /* Domain badge colors */
-  .domain-amg { background-color: #60A5FA !important; color: white !important; }
-  .domain-arg { background-color: #38BDF8 !important; color: white !important; }
-  .domain-qrmg { background-color: #06B6D4 !important; color: white !important; }
-  .domain-aitg { background-color: #10B981 !important; color: white !important; }
+  .domain-audit-methodology { background-color: #60A5FA !important; color: white !important; }
+  .domain-accounting-reporting { background-color: #38BDF8 !important; color: white !important; }
+  .domain-audit-technology { background-color: #10B981 !important; color: white !important; }
+  .domain-quality-risk { background-color: #06B6D4 !important; color: white !important; }
   .domain-leap { background-color: #F59E0B !important; color: #1a1a1a !important; }
-  .domain-independence { background-color: #EC4899 !important; color: white !important; }
+  .domain-auditing { background-color: #EC4899 !important; color: white !important; }
 
   /* Hover animations */
   .hover-lift {

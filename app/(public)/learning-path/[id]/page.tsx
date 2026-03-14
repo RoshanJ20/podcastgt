@@ -4,7 +4,7 @@
  * Public page for viewing and interacting with a specific learning path.
  *
  * Key responsibilities:
- * - Fetches the published learning graph with nodes, edges, and podcast data
+ * - Fetches the published learning graph with episodes and edges
  * - Returns a 404 if the graph does not exist or is unpublished
  * - Renders the LearningPathViewer with authentication status for progress tracking
  */
@@ -26,8 +26,8 @@ export default async function LearningPathDetailPage({
     .from('learning_graphs')
     .select(`
       *,
-      nodes:learning_graph_nodes(*, podcast:podcasts(id, title, thumbnail_url, domain, description, audio_short_url, audio_long_url, bulletin_url)),
-      edges:learning_graph_edges(*)
+      episodes:episodes(*),
+      edges:learning_path_edges(*)
     `)
     .eq('id', id)
     .eq('is_published', true)
@@ -52,7 +52,7 @@ export default async function LearningPathDetailPage({
           <p className="text-muted-foreground mt-1">{typedGraph.description}</p>
         )}
         <p className="text-xs text-muted-foreground mt-2">
-          Click any bulletin to start listening. {(typedGraph.nodes?.length ?? 0)} bulletins in this path.
+          Click any episode to start listening. {(typedGraph.episodes?.length ?? 0)} episodes in this path.
         </p>
       </div>
 

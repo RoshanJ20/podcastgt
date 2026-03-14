@@ -54,7 +54,7 @@ interface AdminSidebarProps {
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/upload', label: 'Upload Bulletin', icon: Upload },
+  { href: '/admin/upload', label: 'Upload Release', icon: Upload },
   { href: '/admin/learning-graphs', label: 'Learning Paths', icon: GitBranch },
 ]
 

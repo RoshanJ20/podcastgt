@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { DOMAINS } from '@/lib/supabase/types'
+import { TECHNICAL_DOMAINS } from '@/lib/supabase/types'
 import { X } from 'lucide-react'
 import type { FormValues } from './upload-form-types'
 
@@ -54,10 +54,10 @@ export function DetailsStep() {
     <div className="glass-card rounded-xl p-6 space-y-5">
       <div>
         <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">
-          Bulletin Details
+          Content Details
         </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Basic information about the bulletin
+          Basic information about the content
         </p>
       </div>
 
@@ -67,7 +67,7 @@ export function DetailsStep() {
           <FormItem>
             <FormLabel>Title *</FormLabel>
             <FormControl>
-              <Input placeholder="Bulletin title" {...field} />
+              <Input placeholder="Enter title" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -81,7 +81,7 @@ export function DetailsStep() {
             <FormLabel>Description</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Brief overview of this bulletin..."
+                placeholder="Brief overview of the content..."
                 rows={3}
                 {...field}
               />
@@ -97,14 +97,14 @@ export function DetailsStep() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Domain *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select domain" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {DOMAINS.map((d) => (
+                  {TECHNICAL_DOMAINS.map((d) => (
                     <SelectItem key={d} value={d}>
                       {d}
                     </SelectItem>
@@ -136,27 +136,6 @@ export function DetailsStep() {
         />
       </div>
 
-      <FormField
-        name="content_type"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Content Type *</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="technical">Bulletin</SelectItem>
-                <SelectItem value="learning_series">Learning Series</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       <TagInput
         tagInput={tagInput}
         setTagInput={setTagInput}
@@ -164,6 +143,10 @@ export function DetailsStep() {
         onAdd={addTag}
         onRemove={removeTag}
       />
+
+      <p className="text-xs italic text-muted-foreground">
+        All fields marked with * are mandatory
+      </p>
     </div>
   )
 }

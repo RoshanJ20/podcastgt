@@ -21,9 +21,9 @@ interface ReviewStepProps {
 /** Metadata about each file slot for the summary list. */
 const FILE_SLOTS = [
   { key: 'thumbnail', label: 'Thumbnail', Icon: ImageIcon },
-  { key: 'audioShort', label: 'Audio (Short)', Icon: Music },
-  { key: 'audioLong', label: 'Audio (Long)', Icon: Music },
-  { key: 'bulletin', label: 'Bulletin PDF', Icon: FileText },
+  { key: 'audioShort', label: 'Audio (Brief Summary)', Icon: Music },
+  { key: 'audioLong', label: 'Audio (Detailed Overview)', Icon: Music },
+  { key: 'bulletin', label: 'Attachment PDF', Icon: FileText },
   { key: 'transcript', label: 'Transcript', Icon: FileText },
 ] as const
 
@@ -82,14 +82,6 @@ function MetadataSummary({
         <Detail label="Title" value={values.title || '\u2014'} />
         <Detail label="Domain" value={values.domain || '\u2014'} />
         <Detail label="Year" value={String(values.year)} />
-        <Detail
-          label="Content Type"
-          value={
-            values.content_type === 'learning_series'
-              ? 'Learning Series'
-              : 'Bulletin'
-          }
-        />
       </div>
       <div className="space-y-3">
         {values.description && (

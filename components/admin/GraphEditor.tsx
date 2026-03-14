@@ -1,12 +1,9 @@
 /**
  * @module GraphEditor
  *
- * Main learning-graph editor component. Orchestrates state management for
- * nodes and edges, handles persistence via REST API, and composes the
+ * Main learning-path graph editor component. Orchestrates state management for
+ * episode nodes and edges, handles persistence via REST API, and composes the
  * toolbar, canvas, and sidebar sub-components.
- *
- * This is the public entry point; it provides the ReactFlowProvider wrapper
- * and delegates rendering to GraphEditorToolbar and GraphEditorCanvas.
  */
 
 'use client'
@@ -25,28 +22,22 @@ import { toast } from 'sonner'
 import { GraphEditorToolbar } from './GraphEditorToolbar'
 import { GraphEditorCanvas } from './GraphEditorCanvas'
 import {
-  dbNodesToFlowNodes,
+  episodesToFlowNodes,
   dbEdgesToFlowEdges,
   autoLayout,
-  type PodcastSummary,
-  type ExtendedPodcastNodeData,
+  type EpisodeNodeData,
 } from './graph-utils'
-import type { LearningGraph, GraphNodeType, Podcast } from '@/lib/supabase/types'
+import type { LearningGraph, GraphNodeType } from '@/lib/supabase/types'
+import type { EpisodeData } from './graph-nodes/EpisodeEditModal'
 
-function GraphEditorInner({
-  graph,
-  initialPodcasts,
-}: {
-  graph: LearningGraph
-  initialPodcasts: PodcastSummary[]
-}) {
+function GraphEditorInner({ graph }: { graph: LearningGraph }) {
   const [saving, setSaving] = useState(false)
   const [isPublished, setIsPublished] = useState(graph.is_published)
-  const [podcasts, setPodcasts] = useState<PodcastSummary[]>(initialPodcasts)
+  const [newNodeId, setNewNodeId] = useState<string | null>(null)
 
   const initialNodes = useMemo(
-    () => dbNodesToFlowNodes(graph.nodes ?? []),
-    [graph.nodes]
+    () => episodesToFlowNodes(graph.episodes ?? []),
+    [graph.episodes]
   )
   const initialEdges = useMemo(
     () => dbEdgesToFlowEdges(graph.edges ?? []),
@@ -55,14 +46,6 @@ function GraphEditorInner({
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-
-  const usedPodcastIds = useMemo(
-    () =>
-      new Set(
-        nodes.map((n) => (n.data as ExtendedPodcastNodeData).podcastId)
-      ),
-    [nodes]
-  )
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -81,35 +64,31 @@ function GraphEditorInner({
     [setEdges]
   )
 
-  const handleAddPodcast = useCallback(
-    (podcast: PodcastSummary) => {
-      const newNode: Node<ExtendedPodcastNodeData> = {
-        id: `temp-${Date.now()}`,
-        type: 'podcast',
-        position: {
-          x: Math.random() * 400 + 100,
-          y: Math.random() * 300 + 100,
-        },
-        data: {
-          podcastId: podcast.id,
-          title: podcast.title,
-          domain: podcast.domain,
-          thumbnailUrl: podcast.thumbnail_url,
-          nodeType: 'default',
-        },
-      }
-      setNodes((nds) => [...nds, newNode])
-    },
-    [setNodes]
-  )
-
-  const handlePodcastCreated = useCallback((podcast: PodcastSummary) => {
-    setPodcasts((prev) => [podcast, ...prev])
-  }, [])
+  const handleAddEpisode = useCallback(() => {
+    const id = `temp-${Date.now()}`
+    const newNode: Node<EpisodeNodeData> = {
+      id,
+      type: 'episode',
+      position: {
+        x: Math.random() * 400 + 100,
+        y: Math.random() * 300 + 100,
+      },
+      data: {
+        title: 'New Episode',
+        description: null,
+        thumbnailUrl: null,
+        audioUrl: null,
+        transcript: null,
+        nodeType: 'default',
+      },
+    }
+    setNodes((nds) => [...nds, newNode])
+    setNewNodeId(id)
+  }, [setNodes])
 
   const handleAutoLayout = useCallback(() => {
     setNodes((nds) =>
-      autoLayout(nds as Node<ExtendedPodcastNodeData>[], edges)
+      autoLayout(nds as Node<EpisodeNodeData>[], edges)
     )
   }, [edges, setNodes])
 
@@ -118,10 +97,7 @@ function GraphEditorInner({
       setNodes((nds) =>
         nds.map((n) =>
           n.id === nodeId
-            ? {
-                ...n,
-                data: { ...n.data, nodeType } as ExtendedPodcastNodeData,
-              }
+            ? { ...n, data: { ...n.data, nodeType } as EpisodeNodeData }
             : n
         )
       )
@@ -129,40 +105,24 @@ function GraphEditorInner({
     [setNodes]
   )
 
-  const handlePodcastUpdate = useCallback(
-    (updated: {
-      id: string
-      title: string
-      description: string | null
-      domain: string
-      thumbnailUrl: string | null
-    }) => {
+  const handleEpisodeUpdate = useCallback(
+    (nodeId: string, updated: EpisodeData) => {
       setNodes((nds) =>
-        nds.map((n) => {
-          const data = n.data as ExtendedPodcastNodeData
-          if (data.podcastId === updated.id) {
-            return {
-              ...n,
-              data: {
-                ...data,
-                title: updated.title,
-                description: updated.description,
-                domain: updated.domain,
-              } as ExtendedPodcastNodeData,
-            }
-          }
-          return n
-        })
-      )
-      setPodcasts((prev) =>
-        prev.map((p) =>
-          p.id === updated.id
+        nds.map((n) =>
+          n.id === nodeId
             ? {
-                ...p,
-                title: updated.title,
-                domain: updated.domain as Podcast['domain'],
+                ...n,
+                data: {
+                  ...n.data,
+                  title: updated.title,
+                  description: updated.description,
+                  thumbnailUrl: updated.thumbnailUrl,
+                  audioUrl: updated.audioUrl,
+                  transcript: updated.transcript,
+                  nodeType: updated.nodeType,
+                } as EpisodeNodeData,
               }
-            : p
+            : n
         )
       )
     },
@@ -173,11 +133,15 @@ function GraphEditorInner({
     setSaving(true)
     try {
       const payload = {
-        nodes: nodes.map((n) => {
-          const data = n.data as ExtendedPodcastNodeData
+        episodes: nodes.map((n) => {
+          const data = n.data as EpisodeNodeData
           return {
             id: n.id,
-            podcast_id: data.podcastId,
+            title: data.title,
+            description: data.description,
+            thumbnail_url: data.thumbnailUrl,
+            audio_url: data.audioUrl,
+            transcript: data.transcript,
             position_x: n.position.x,
             position_y: n.position.y,
             label: null,
@@ -186,8 +150,8 @@ function GraphEditorInner({
         }),
         edges: edges.map((e) => ({
           id: e.id,
-          source_node_id: e.source,
-          target_node_id: e.target,
+          source_episode_id: e.source,
+          target_episode_id: e.target,
           label: (e.label as string) ?? null,
         })),
       }
@@ -200,7 +164,7 @@ function GraphEditorInner({
       if (!res.ok) throw new Error('Failed to save')
 
       const saved = await res.json()
-      if (saved.nodes) setNodes(dbNodesToFlowNodes(saved.nodes))
+      if (saved.episodes) setNodes(episodesToFlowNodes(saved.episodes))
       if (saved.edges) setEdges(dbEdgesToFlowEdges(saved.edges))
       toast.success('Graph saved!')
     } catch {
@@ -233,7 +197,7 @@ function GraphEditorInner({
         isPublished={isPublished}
         saving={saving}
         selectedNode={
-          selectedNode as Node<ExtendedPodcastNodeData> | undefined
+          selectedNode as Node<EpisodeNodeData> | undefined
         }
         onAutoLayout={handleAutoLayout}
         onTogglePublish={handleTogglePublish}
@@ -243,30 +207,24 @@ function GraphEditorInner({
       <GraphEditorCanvas
         nodes={nodes}
         edges={edges}
-        podcasts={podcasts}
-        usedPodcastIds={usedPodcastIds}
+        episodeCount={nodes.length}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onAddPodcast={handleAddPodcast}
-        onPodcastCreated={handlePodcastCreated}
+        onAddEpisode={handleAddEpisode}
         onChangeNodeType={handleChangeNodeType}
-        onPodcastUpdate={handlePodcastUpdate}
+        onEpisodeUpdate={handleEpisodeUpdate}
+        autoEditNodeId={newNodeId}
+        onAutoEditDone={() => setNewNodeId(null)}
       />
     </div>
   )
 }
 
-export function GraphEditor(props: {
-  graph: LearningGraph
-  podcasts: PodcastSummary[]
-}) {
+export function GraphEditor({ graph }: { graph: LearningGraph }) {
   return (
     <ReactFlowProvider>
-      <GraphEditorInner
-        graph={props.graph}
-        initialPodcasts={props.podcasts}
-      />
+      <GraphEditorInner graph={graph} />
     </ReactFlowProvider>
   )
 }

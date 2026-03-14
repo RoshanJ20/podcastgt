@@ -1,58 +1,55 @@
 /**
  * @module graph-utils
  *
- * Utility functions for converting between database graph representations
+ * Utility functions for converting between database episode representations
  * and React Flow node/edge formats, plus automatic layout via dagre.
  */
 
 import type { Edge, Node } from '@xyflow/react'
 import dagre from 'dagre'
-import type { PodcastNodeData } from './graph-nodes/PodcastNode'
-import type { LearningGraphNode, LearningGraphEdge, Podcast } from '@/lib/supabase/types'
+import type { Episode, LearningPathEdge, GraphNodeType, EpisodeTranscript } from '@/lib/supabase/types'
 
-/** Summary fields needed from a Podcast record. */
-export type PodcastSummary = Pick<Podcast, 'id' | 'title' | 'thumbnail_url' | 'domain'>
-
-/** Extended data stored per-node, including fields used by the edit modal. */
-export type ExtendedPodcastNodeData = PodcastNodeData & {
-  description?: string | null
-  audioShortUrl?: string | null
-  audioLongUrl?: string | null
-  bulletinUrl?: string | null
+/** Data stored per React Flow node for episode editing. */
+export type EpisodeNodeData = {
+  episodeId?: string
+  title: string
+  description: string | null
+  thumbnailUrl: string | null
+  audioUrl: string | null
+  transcript: EpisodeTranscript | null
+  nodeType: GraphNodeType
 }
 
 /**
- * Converts database learning-graph nodes into React Flow nodes.
+ * Converts database episodes into React Flow nodes.
  */
-export function dbNodesToFlowNodes(
-  dbNodes: LearningGraphNode[]
-): Node<ExtendedPodcastNodeData>[] {
-  return dbNodes.map((n) => ({
-    id: n.id,
-    type: 'podcast',
-    position: { x: n.position_x, y: n.position_y },
+export function episodesToFlowNodes(
+  episodes: Episode[]
+): Node<EpisodeNodeData>[] {
+  return episodes.map((ep) => ({
+    id: ep.id,
+    type: 'episode',
+    position: { x: ep.position_x, y: ep.position_y },
     data: {
-      podcastId: n.podcast_id,
-      title: n.podcast?.title ?? 'Untitled',
-      domain: n.podcast?.domain ?? '',
-      thumbnailUrl: n.podcast?.thumbnail_url ?? null,
-      nodeType: n.node_type,
-      description: n.podcast?.description ?? null,
-      audioShortUrl: n.podcast?.audio_short_url ?? null,
-      audioLongUrl: n.podcast?.audio_long_url ?? null,
-      bulletinUrl: n.podcast?.bulletin_url ?? null,
+      episodeId: ep.id,
+      title: ep.title,
+      description: ep.description,
+      thumbnailUrl: ep.thumbnail_url,
+      audioUrl: ep.audio_url,
+      transcript: ep.transcript,
+      nodeType: ep.node_type,
     },
   }))
 }
 
 /**
- * Converts database learning-graph edges into React Flow edges.
+ * Converts database learning-path edges into React Flow edges.
  */
-export function dbEdgesToFlowEdges(dbEdges: LearningGraphEdge[]): Edge[] {
+export function dbEdgesToFlowEdges(dbEdges: LearningPathEdge[]): Edge[] {
   return dbEdges.map((e) => ({
     id: e.id,
-    source: e.source_node_id,
-    target: e.target_node_id,
+    source: e.source_episode_id,
+    target: e.target_episode_id,
     label: e.label ?? undefined,
     animated: true,
     style: { stroke: 'var(--primary)', strokeWidth: 2 },
@@ -64,9 +61,9 @@ export function dbEdgesToFlowEdges(dbEdges: LearningGraphEdge[]): Edge[] {
  * Returns a new array of nodes with updated positions.
  */
 export function autoLayout(
-  nodes: Node<ExtendedPodcastNodeData>[],
+  nodes: Node<EpisodeNodeData>[],
   edges: Edge[]
-): Node<ExtendedPodcastNodeData>[] {
+): Node<EpisodeNodeData>[] {
   const g = new dagre.graphlib.Graph()
   g.setDefaultEdgeLabel(() => ({}))
   g.setGraph({ rankdir: 'TB', nodesep: 60, ranksep: 80 })

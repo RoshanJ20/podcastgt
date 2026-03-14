@@ -5,7 +5,7 @@
  *
  * Key responsibilities:
  * - Define the shape and constraints for creating/editing learning graphs.
- * - Define the shape for bulk-saving graph node and edge data.
+ * - Define the shape for bulk-saving episode and edge data.
  */
 
 import { z } from 'zod'
@@ -21,12 +21,23 @@ export const learningGraphSchema = z.object({
 /** TypeScript type inferred from `learningGraphSchema`. */
 export type LearningGraphFormValues = z.infer<typeof learningGraphSchema>
 
-/** Schema for the bulk save payload containing arrays of nodes and edges. */
+/** Schema for the bulk save payload containing arrays of episodes and edges. */
 export const saveGraphDataSchema = z.object({
-  nodes: z.array(
+  episodes: z.array(
     z.object({
       id: z.string().optional(),
-      podcast_id: z.string(),
+      title: z.string().min(1, 'Episode title is required'),
+      description: z.string().nullable().optional(),
+      thumbnail_url: z.string().nullable().optional(),
+      audio_url: z.string().nullable().optional(),
+      transcript: z.object({
+        full_text: z.string().nullable().optional(),
+        segments: z.array(z.object({
+          start: z.number(),
+          end: z.number(),
+          text: z.string(),
+        })).nullable().optional(),
+      }).nullable().optional(),
       position_x: z.number(),
       position_y: z.number(),
       label: z.string().nullable().optional(),
@@ -37,8 +48,8 @@ export const saveGraphDataSchema = z.object({
   edges: z.array(
     z.object({
       id: z.string().optional(),
-      source_node_id: z.string(),
-      target_node_id: z.string(),
+      source_episode_id: z.string(),
+      target_episode_id: z.string(),
       label: z.string().nullable().optional(),
     })
   ),

@@ -46,12 +46,10 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
           description: editPodcast.description ?? '',
           domain: editPodcast.domain,
           year: editPodcast.year,
-          content_type: editPodcast.content_type,
           tags: editPodcast.tags,
         }
       : {
           year: new Date().getFullYear(),
-          content_type: 'technical',
           tags: [],
         },
   })
@@ -65,7 +63,6 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
         'title',
         'domain',
         'year',
-        'content_type',
       ])
       if (!valid) return
     }
@@ -86,7 +83,7 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
         editPodcast?.id
       )
 
-      toast.success(editPodcast ? 'Bulletin updated!' : 'Bulletin uploaded!')
+      toast.success(editPodcast ? 'Release updated!' : 'Release uploaded!')
       if (onSuccess) {
         onSuccess(podcast)
       } else {
@@ -187,7 +184,7 @@ function NavigationButtons({
             className="btn-gradient px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center gap-1.5"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isEdit ? 'Save Changes' : 'Upload Bulletin'}
+            {isEdit ? 'Save Changes' : 'Upload Release'}
           </button>
         )}
       </div>

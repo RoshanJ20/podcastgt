@@ -7,36 +7,55 @@
  * Key responsibilities:
  * - Define domain literals and their display metadata.
  * - Define interfaces for all major database entities (Podcast, Transcript, Bookmark, etc.).
- * - Define learning graph types (LearningGraph, LearningGraphNode, LearningGraphEdge).
+ * - Define learning graph types (LearningGraph, Episode, LearningPathEdge).
  */
 
 /** Business domain identifier for categorizing podcasts and learning graphs. */
-export type Domain = 'AMG' | 'ARG' | 'QRMG' | 'AITG' | 'LEAP' | 'Independence'
-
-/** Content classification for podcast episodes. */
-export type ContentType = 'technical' | 'learning_series'
+export type Domain =
+  | 'Audit Methodology'
+  | 'Accounting and Reporting'
+  | 'Audit Technology'
+  | 'Quality and Risk'
+  | 'LEAP'
+  | 'Auditing'
 
 /** Application-level user role. */
 export type UserRole = 'public' | 'admin' | 'superadmin'
 
-/** Ordered list of all domain identifiers. */
-export const DOMAINS: Domain[] = ['AMG', 'ARG', 'QRMG', 'AITG', 'LEAP', 'Independence']
+/** Domains available for technical releases. */
+export const TECHNICAL_DOMAINS: Domain[] = [
+  'Audit Methodology',
+  'Accounting and Reporting',
+  'Audit Technology',
+  'Quality and Risk',
+  'LEAP',
+]
+
+/** Domains available for learning series. */
+export const LEARNING_SERIES_DOMAINS: Domain[] = [
+  'Auditing',
+  'Accounting and Reporting',
+]
+
+/** All unique domain identifiers (union of both categories). */
+export const DOMAINS: Domain[] = [
+  'Audit Methodology',
+  'Accounting and Reporting',
+  'Audit Technology',
+  'Quality and Risk',
+  'LEAP',
+  'Auditing',
+]
 
 /** CSS class mapping for domain-specific color theming. */
 export const DOMAIN_COLORS: Record<Domain, string> = {
-  AMG: 'domain-amg',
-  ARG: 'domain-arg',
-  QRMG: 'domain-qrmg',
-  AITG: 'domain-aitg',
-  LEAP: 'domain-leap',
-  Independence: 'domain-independence',
+  'Audit Methodology': 'domain-audit-methodology',
+  'Accounting and Reporting': 'domain-accounting-reporting',
+  'Audit Technology': 'domain-audit-technology',
+  'Quality and Risk': 'domain-quality-risk',
+  'LEAP': 'domain-leap',
+  'Auditing': 'domain-auditing',
 }
-
-/** Content type options with human-readable labels for UI selects. */
-export const CONTENT_TYPES: { value: ContentType; label: string }[] = [
-  { value: 'technical', label: 'Technical Content' },
-  { value: 'learning_series', label: 'Learning Series' },
-]
 
 /** A podcast episode record from the database. */
 export interface Podcast {
@@ -50,7 +69,6 @@ export interface Podcast {
   audio_short_url: string | null
   audio_long_url: string | null
   bulletin_url: string | null
-  content_type: ContentType
   sort_order: number
   created_at: string
   updated_at: string
@@ -103,7 +121,7 @@ export const GRAPH_NODE_TYPES: GraphNodeType[] = ['default', 'start', 'milestone
 /** Path layout type for learning graphs. */
 export type PathType = 'linear' | 'graph'
 
-/** A learning graph record with optional joined node/edge data. */
+/** A learning graph record with optional joined episode/edge data. */
 export interface LearningGraph {
   id: string
   title: string
@@ -114,31 +132,41 @@ export interface LearningGraph {
   thumbnail_url: string | null
   created_at: string
   updated_at: string
-  node_count?: number
-  nodes?: LearningGraphNode[]
-  edges?: LearningGraphEdge[]
+  episode_count?: number
+  episodes?: Episode[]
+  edges?: LearningPathEdge[]
 }
 
-/** A node within a learning graph, optionally joined with its podcast data. */
-export interface LearningGraphNode {
+/** Transcript data stored inline on an episode. */
+export interface EpisodeTranscript {
+  full_text: string | null
+  segments: TranscriptSegment[] | null
+}
+
+/** An episode within a learning path, carrying both content and layout info. */
+export interface Episode {
   id: string
   graph_id: string
-  podcast_id: string
+  title: string
+  description: string | null
+  thumbnail_url: string | null
+  audio_url: string | null
+  transcript: EpisodeTranscript | null
+  sort_order: number
   position_x: number
   position_y: number
-  label: string | null
   node_type: GraphNodeType
-  sort_order: number
+  label: string | null
   created_at: string
-  podcast?: Pick<Podcast, 'id' | 'title' | 'thumbnail_url' | 'domain' | 'description' | 'audio_short_url' | 'audio_long_url' | 'bulletin_url'>
+  updated_at: string
 }
 
-/** A directed edge between two nodes within a learning graph. */
-export interface LearningGraphEdge {
+/** A directed edge between two episodes within a learning path. */
+export interface LearningPathEdge {
   id: string
   graph_id: string
-  source_node_id: string
-  target_node_id: string
+  source_episode_id: string
+  target_episode_id: string
   label: string | null
   created_at: string
 }

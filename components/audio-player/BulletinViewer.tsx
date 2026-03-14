@@ -56,7 +56,7 @@ export function BulletinViewer({ url }: BulletinViewerProps) {
           <FileText className="h-5 w-5 text-[#38BDF8]" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium">Bulletin</p>
+          <p className="text-sm font-medium">Attachment</p>
           <p className="text-xs text-muted-foreground">
             {expanded
               ? `Page ${pageNumber} of ${numPages ?? '...'}`

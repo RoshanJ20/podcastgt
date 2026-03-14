@@ -1,20 +1,26 @@
 /**
  * @module DomainFilter
  *
- * Horizontal filter bar for selecting a domain category in the bulletin library.
+ * Horizontal filter bar for selecting a domain category.
  *
  * Key responsibilities:
  * - Renders pill-shaped filter buttons for each domain plus an "All" option
  * - Updates the URL search params to reflect the selected domain filter
  * - Applies domain-specific color styling to the active filter button
+ * - Accepts an explicit list of domains so each page shows only relevant options
  */
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { DOMAINS, DOMAIN_COLORS } from '@/lib/supabase/types'
+import type { Domain } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 
-export function DomainFilter() {
+interface DomainFilterProps {
+  domains?: Domain[]
+}
+
+export function DomainFilter({ domains = DOMAINS }: DomainFilterProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -43,7 +49,7 @@ export function DomainFilter() {
       >
         All
       </button>
-      {DOMAINS.map((domain) => (
+      {domains.map((domain) => (
         <button
           key={domain}
           onClick={() => handleChange(domain)}

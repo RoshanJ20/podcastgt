@@ -25,7 +25,7 @@ export default async function AdminDashboard() {
   ])
 
   const stats = [
-    { label: 'Total Bulletins', value: podcastCount ?? 0, icon: Headphones, color: '#60A5FA', href: '#bulletins' },
+    { label: 'Technical Releases', value: podcastCount ?? 0, icon: Headphones, color: '#60A5FA', href: '#bulletins' },
     { label: 'Learning Paths', value: learningPathCount ?? 0, icon: GitBranch, color: '#38BDF8', href: '/admin/learning-graphs' },
   ]
 
@@ -62,12 +62,12 @@ export default async function AdminDashboard() {
                 <div className="p-2 rounded-lg bg-[#60A5FA]/15 group-hover:bg-[#60A5FA]/25 transition-colors">
                   <Mic className="h-5 w-5 text-[#60A5FA]" />
                 </div>
-                Upload New Bulletin
+                Upload New Release
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Add a new audio bulletin with title, description, domain, and files.
+                Add a new audio release with title, description, domain, and files.
               </p>
             </CardContent>
           </Card>
@@ -93,7 +93,7 @@ export default async function AdminDashboard() {
 
       {/* All Podcasts table */}
       <div id="bulletins" className="space-y-3">
-        <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">All Bulletins</h2>
+        <h2 className="text-lg font-semibold font-[family-name:var(--font-heading)]">All Technical Releases</h2>
         <p className="text-sm text-muted-foreground -mt-1">Drag rows to reorder. Click edit or delete to manage.</p>
         <PodcastTable initialPodcasts={(podcasts as Podcast[]) ?? []} />
       </div>

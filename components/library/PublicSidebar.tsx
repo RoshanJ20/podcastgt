@@ -23,14 +23,14 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from '@/components/ui/sidebar'
-import { Headphones, BookOpen, BarChart3 } from 'lucide-react'
+import { Home, Headphones, BookOpen } from 'lucide-react'
 import { UserNav } from '@/components/library/UserNav'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/', label: 'Bulletins', icon: Headphones },
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/bulletins', label: 'Technical Releases', icon: Headphones },
   { href: '/learning-path', label: 'Learning Paths', icon: BookOpen },
-  { href: '/progress', label: 'My Progress', icon: BarChart3 },
 ]
 
 export function PublicSidebar() {

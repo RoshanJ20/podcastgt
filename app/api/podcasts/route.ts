@@ -15,7 +15,7 @@ import { unauthorizedResponse, internalErrorResponse } from '@/lib/api/error-res
 /**
  * Retrieve all podcasts, optionally filtered by domain, content type, year, or tags.
  *
- * @param request - Incoming request with optional query params: `domain`, `content_type`, `year`, `tags`.
+ * @param request - Incoming request with optional query params: `domain`, `year`, `tags`.
  * @returns JSON array of podcast objects ordered by sort_order then created_at.
  * @throws 500 if the database query fails.
  */
@@ -24,7 +24,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url)
 
   const domain = searchParams.get('domain')
-  const contentType = searchParams.get('content_type')
   const year = searchParams.get('year')
   const tags = searchParams.get('tags')
 
@@ -35,7 +34,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .order('created_at', { ascending: false })
 
   if (domain) podcastQuery = podcastQuery.eq('domain', domain)
-  if (contentType) podcastQuery = podcastQuery.eq('content_type', contentType)
   if (year) podcastQuery = podcastQuery.eq('year', parseInt(year, 10))
   if (tags) podcastQuery = podcastQuery.overlaps('tags', tags.split(','))
 
