@@ -54,6 +54,7 @@ function formatMonth(ym: string) {
 
 /** Custom SVG donut chart (recharts PieChart is broken with React 19) */
 function DonutChart({ data, colors }: { data: DomainData[]; colors: string[] }) {
+  const [hovered, setHovered] = useState<number | null>(null)
   const total = data.reduce((sum, d) => sum + d.count, 0)
   if (total === 0) return null
 
@@ -61,13 +62,16 @@ function DonutChart({ data, colors }: { data: DomainData[]; colors: string[] }) 
   const cy = 110
   const outerR = 90
   const innerR = 55
-  const [hovered, setHovered] = useState<number | null>(null)
 
-  let cumulative = 0
+  const cumulatives = data.reduce<number[]>((acc, d) => {
+    acc.push((acc[acc.length - 1] ?? 0) + d.count)
+    return acc
+  }, [])
+
   const arcs = data.map((d, i) => {
-    const startAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2
-    cumulative += d.count
-    const endAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2
+    const prevCumulative = i === 0 ? 0 : cumulatives[i - 1]
+    const startAngle = (prevCumulative / total) * 2 * Math.PI - Math.PI / 2
+    const endAngle = (cumulatives[i] / total) * 2 * Math.PI - Math.PI / 2
     const largeArc = d.count / total > 0.5 ? 1 : 0
 
     const x1o = cx + outerR * Math.cos(startAngle)
