@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -20,10 +20,12 @@ import type { LearningGraph, LearningGraphNode, LearningGraphEdge, GraphNodeType
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import { cn } from '@/lib/utils'
+import { CheckCircle2 } from 'lucide-react'
 
 // Inline read-only node component
 type ViewerNodeData = {
   podcastId: string
+  nodeId: string
   title: string
   description: string | null
   domain: string
@@ -32,6 +34,7 @@ type ViewerNodeData = {
   audioLongUrl: string | null
   bulletinUrl: string | null
   nodeType: GraphNodeType
+  completed: boolean
 }
 
 type ViewerNodeType = Node<ViewerNodeData, 'viewerPodcast'>
@@ -51,10 +54,16 @@ const ViewerPodcastNode = memo(function ViewerPodcastNode({ data }: NodeProps<Vi
       <Handle type="target" position={Position.Top} className="!opacity-0" />
       <div
         className={cn(
-          'bg-card rounded-lg border-2 shadow-md px-3 py-2 min-w-[160px] max-w-[200px] cursor-pointer hover:shadow-lg transition-shadow',
+          'bg-card rounded-lg border-2 shadow-md px-3 py-2 min-w-[160px] max-w-[200px] cursor-pointer hover:shadow-lg transition-shadow relative',
           nodeTypeStyles[nodeType],
+          data.completed && 'border-green-500/50 bg-green-500/5',
         )}
       >
+        {data.completed && (
+          <div className="absolute -top-1.5 -right-1.5 bg-green-500 rounded-full p-0.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+          </div>
+        )}
         <div className="flex items-start gap-2">
           {data.thumbnailUrl && (
             <img
@@ -80,7 +89,7 @@ const viewerNodeTypes: NodeTypes = {
   viewerPodcast: ViewerPodcastNode,
 }
 
-function toFlowNodes(dbNodes: LearningGraphNode[]): Node<ViewerNodeData>[] {
+function toFlowNodes(dbNodes: LearningGraphNode[], completedNodeIds: Set<string>): Node<ViewerNodeData>[] {
   return dbNodes.map((n) => ({
     id: n.id,
     type: 'viewerPodcast',
@@ -89,6 +98,7 @@ function toFlowNodes(dbNodes: LearningGraphNode[]): Node<ViewerNodeData>[] {
     connectable: false,
     data: {
       podcastId: n.podcast_id,
+      nodeId: n.id,
       title: n.podcast?.title ?? 'Untitled',
       description: n.podcast?.description ?? null,
       domain: n.podcast?.domain ?? '',
@@ -97,6 +107,7 @@ function toFlowNodes(dbNodes: LearningGraphNode[]): Node<ViewerNodeData>[] {
       audioLongUrl: n.podcast?.audio_long_url ?? null,
       bulletinUrl: n.podcast?.bulletin_url ?? null,
       nodeType: n.node_type,
+      completed: completedNodeIds.has(n.id),
     },
   }))
 }
@@ -161,49 +172,108 @@ function linearSort(nodes: LearningGraphNode[]): LearningGraphNode[] {
 
 function NodeList({
   nodes,
+  completedNodeIds,
   onNodeClick,
 }: {
   nodes: LearningGraphNode[]
+  completedNodeIds: Set<string>
   onNodeClick: (node: LearningGraphNode) => void
 }) {
   return (
     <div className="space-y-3">
-      {nodes.map((node, index) => (
-        <Card
-          key={node.id}
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => onNodeClick(node)}
-        >
-          <CardContent className="pt-4 flex items-center gap-3">
-            <span className="text-lg font-bold text-muted-foreground w-8 shrink-0 text-center">
-              {index + 1}
-            </span>
-            {node.podcast?.thumbnail_url && (
-              <img
-                src={node.podcast.thumbnail_url}
-                alt=""
-                className="w-10 h-10 rounded object-cover shrink-0"
-              />
+      {nodes.map((node, index) => {
+        const completed = completedNodeIds.has(node.id)
+        return (
+          <Card
+            key={node.id}
+            className={cn(
+              'cursor-pointer hover:shadow-md transition-shadow',
+              completed && 'border-green-500/30 bg-green-500/5',
             )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{node.podcast?.title ?? 'Untitled'}</p>
-              <Badge variant="outline" className="text-[10px] mt-0.5">
-                {node.podcast?.domain}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            onClick={() => onNodeClick(node)}
+          >
+            <CardContent className="pt-4 flex items-center gap-3">
+              <span className={cn(
+                'text-lg font-bold w-8 shrink-0 text-center',
+                completed ? 'text-green-500' : 'text-muted-foreground',
+              )}>
+                {completed ? <CheckCircle2 className="h-5 w-5 mx-auto" /> : index + 1}
+              </span>
+              {node.podcast?.thumbnail_url && (
+                <img
+                  src={node.podcast.thumbnail_url}
+                  alt=""
+                  className="w-10 h-10 rounded object-cover shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{node.podcast?.title ?? 'Untitled'}</p>
+                <Badge variant="outline" className="text-[10px] mt-0.5">
+                  {node.podcast?.domain}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })}
     </div>
   )
 }
 
-function LearningPathViewerInner({ graph }: { graph: LearningGraph }) {
+function LearningPathViewerInner({ graph, isLoggedIn }: { graph: LearningGraph; isLoggedIn: boolean }) {
   const [selectedPodcast, setSelectedPodcast] = useState<ViewerNodeData | null>(null)
+  const [completedNodeIds, setCompletedNodeIds] = useState<Set<string>>(new Set())
+
+  // Fetch progress
+  useEffect(() => {
+    if (!isLoggedIn) return
+    fetch(`/api/progress?graph_id=${graph.id}`)
+      .then((r) => r.json())
+      .then((data: { node_id: string }[]) => {
+        if (Array.isArray(data)) {
+          setCompletedNodeIds(new Set(data.map((p) => p.node_id)))
+        }
+      })
+      .catch(() => {})
+  }, [graph.id, isLoggedIn])
+
+  const handleToggleComplete = useCallback(async (nodeId: string) => {
+    const isCompleted = completedNodeIds.has(nodeId)
+
+    if (isCompleted) {
+      const res = await fetch('/api/progress', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ node_id: nodeId }),
+      })
+      if (res.ok) {
+        setCompletedNodeIds((prev) => {
+          const next = new Set(prev)
+          next.delete(nodeId)
+          return next
+        })
+      }
+    } else {
+      const res = await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ graph_id: graph.id, node_id: nodeId }),
+      })
+      if (res.ok) {
+        setCompletedNodeIds((prev) => new Set(prev).add(nodeId))
+        // Log activity
+        fetch('/api/activity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activity_type: 'complete_node', graph_id: graph.id }),
+        }).catch(() => {})
+      }
+    }
+  }, [completedNodeIds, graph.id])
 
   const isLinear = graph.path_type === 'linear'
 
-  const flowNodes = useMemo(() => toFlowNodes(graph.nodes ?? []), [graph.nodes])
+  const flowNodes = useMemo(() => toFlowNodes(graph.nodes ?? [], completedNodeIds), [graph.nodes, completedNodeIds])
   const flowEdges = useMemo(() => toFlowEdges(graph.edges ?? []), [graph.edges])
 
   const orderedNodes = useMemo(() => {
@@ -219,6 +289,7 @@ function LearningPathViewerInner({ graph }: { graph: LearningGraph }) {
   const onListNodeClick = (node: LearningGraphNode) => {
     setSelectedPodcast({
       podcastId: node.podcast_id,
+      nodeId: node.id,
       title: node.podcast?.title ?? 'Untitled',
       description: node.podcast?.description ?? null,
       domain: node.podcast?.domain ?? '',
@@ -227,14 +298,38 @@ function LearningPathViewerInner({ graph }: { graph: LearningGraph }) {
       audioLongUrl: node.podcast?.audio_long_url ?? null,
       bulletinUrl: node.podcast?.bulletin_url ?? null,
       nodeType: node.node_type,
+      completed: completedNodeIds.has(node.id),
     })
   }
 
+  // Progress bar
+  const totalNodes = (graph.nodes ?? []).length
+  const completedCount = completedNodeIds.size
+  const progressPct = totalNodes > 0 ? Math.round((completedCount / totalNodes) * 100) : 0
+
   return (
     <>
+      {/* Progress bar */}
+      {isLoggedIn && totalNodes > 0 && (
+        <div className="mb-4 space-y-1.5">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+              {completedCount} of {totalNodes} completed
+            </span>
+            <span className="font-medium text-primary">{progressPct}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#60A5FA] to-[#38BDF8] transition-all duration-500"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       {isLinear ? (
         // Linear mode: always show ordered list
-        <NodeList nodes={orderedNodes} onNodeClick={onListNodeClick} />
+        <NodeList nodes={orderedNodes} completedNodeIds={completedNodeIds} onNodeClick={onListNodeClick} />
       ) : (
         <>
           {/* Graph mode desktop: React Flow canvas */}
@@ -257,7 +352,7 @@ function LearningPathViewerInner({ graph }: { graph: LearningGraph }) {
 
           {/* Graph mode mobile: fallback list */}
           <div className="md:hidden">
-            <NodeList nodes={orderedNodes} onNodeClick={onListNodeClick} />
+            <NodeList nodes={orderedNodes} completedNodeIds={completedNodeIds} onNodeClick={onListNodeClick} />
           </div>
         </>
       )}
@@ -277,16 +372,20 @@ function LearningPathViewerInner({ graph }: { graph: LearningGraph }) {
             audioLongUrl: selectedPodcast.audioLongUrl,
             bulletinUrl: selectedPodcast.bulletinUrl,
           }}
+          nodeId={selectedPodcast.nodeId}
+          isCompleted={completedNodeIds.has(selectedPodcast.nodeId)}
+          isLoggedIn={isLoggedIn}
+          onToggleComplete={handleToggleComplete}
         />
       )}
     </>
   )
 }
 
-export function LearningPathViewer({ graph }: { graph: LearningGraph }) {
+export function LearningPathViewer({ graph, isLoggedIn = false }: { graph: LearningGraph; isLoggedIn?: boolean }) {
   return (
     <ReactFlowProvider>
-      <LearningPathViewerInner graph={graph} />
+      <LearningPathViewerInner graph={graph} isLoggedIn={isLoggedIn} />
     </ReactFlowProvider>
   )
 }

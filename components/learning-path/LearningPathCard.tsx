@@ -7,7 +7,7 @@ import type { LearningGraph } from '@/lib/supabase/types'
 export function LearningPathCard({ graph }: { graph: LearningGraph }) {
   return (
     <Link href={`/learning-path/${graph.id}`}>
-      <Card className="group overflow-hidden transition-all duration-300 cursor-pointer h-full glass-card hover:border-[#38BDF8]/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#38BDF8]/10">
+      <Card className="group overflow-hidden transition-all duration-300 cursor-pointer h-full glass-card ring-0 hover:border-[#38BDF8]/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#38BDF8]/10 pt-0 gap-0">
         <div className="relative aspect-square bg-muted overflow-hidden">
           {graph.thumbnail_url ? (
             <img

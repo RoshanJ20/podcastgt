@@ -25,6 +25,10 @@ export default async function LearningPathDetailPage({
 
   if (!graph) notFound()
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   const typedGraph = graph as LearningGraph
 
   return (
@@ -42,7 +46,7 @@ export default async function LearningPathDetailPage({
         </p>
       </div>
 
-      <LearningPathViewer graph={typedGraph} />
+      <LearningPathViewer graph={typedGraph} isLoggedIn={!!user} />
     </div>
   )
 }

@@ -76,6 +76,7 @@ export function BookmarkPanel({ podcastId, currentTime, onSeek, isLoggedIn }: Bo
       <div className="text-sm text-muted-foreground text-center py-4 space-y-2">
         <Bookmark className="h-5 w-5 mx-auto opacity-40" />
         <p>Sign in to save bookmarks.</p>
+        <a href="/login?redirectTo=/" className="text-primary hover:underline text-xs">Sign in</a>
       </div>
     )
   }

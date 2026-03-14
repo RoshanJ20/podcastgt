@@ -13,13 +13,14 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from '@/components/ui/sidebar'
-import { Headphones, BookOpen, Settings } from 'lucide-react'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { Headphones, BookOpen, BarChart3 } from 'lucide-react'
+import { UserNav } from '@/components/library/UserNav'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/', label: 'Bulletins', icon: Headphones },
   { href: '/learning-path', label: 'Learning Paths', icon: BookOpen },
+  { href: '/progress', label: 'My Progress', icon: BarChart3 },
 ]
 
 export function PublicSidebar() {
@@ -27,18 +28,15 @@ export function PublicSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b p-4">
+      <SidebarHeader className="p-4 pb-2">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="bg-gradient-to-br from-[#60A5FA] to-[#38BDF8] p-1.5 rounded-lg">
-            <Headphones className="h-4 w-4 text-white" />
-          </div>
           <span className="font-semibold gradient-text font-[family-name:var(--font-heading)]">Podcast Hub</span>
         </Link>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Browse</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground/60">Browse</SidebarGroupLabel>
           <SidebarMenu>
             {navItems.map(({ href, label, icon: Icon }) => (
               <SidebarMenuItem key={href}>
@@ -46,7 +44,7 @@ export function PublicSidebar() {
                   render={<Link href={href} />}
                   isActive={href === '/' ? pathname === '/' : pathname.startsWith(href)}
                   className={cn(
-                    'transition-all duration-200 hover:translate-x-0.5',
+                    'transition-all duration-200',
                     (href === '/' ? pathname === '/' : pathname.startsWith(href)) && 'bg-accent text-accent-foreground'
                   )}
                 >
@@ -59,21 +57,8 @@ export function PublicSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4">
-        <div className="flex items-center justify-between">
-          <SidebarMenu className="flex-1">
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                render={<Link href="/admin" />}
-                className="transition-all duration-200 hover:translate-x-0.5"
-              >
-                <Settings className="h-4 w-4" />
-                Admin
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-          <ThemeToggle />
-        </div>
+      <SidebarFooter className="p-3">
+        <UserNav />
       </SidebarFooter>
     </Sidebar>
   )

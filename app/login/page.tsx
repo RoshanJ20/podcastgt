@@ -17,6 +17,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [mode, setMode] = useState<'magic' | 'password'>('magic')
+  const [isSignUp, setIsSignUp] = useState(false)
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') ?? '/'
 
@@ -39,9 +40,26 @@ function LoginForm() {
     e.preventDefault()
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) toast.error(error.message)
-    else window.location.href = redirectTo
+
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`,
+        },
+      })
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success('Check your email to confirm your account.')
+        setSent(true)
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) toast.error(error.message)
+      else window.location.href = redirectTo
+    }
     setLoading(false)
   }
 
@@ -60,7 +78,9 @@ function LoginForm() {
             </div>
           </div>
           <CardTitle className="text-2xl gradient-text font-[family-name:var(--font-heading)]">Podcast Hub</CardTitle>
-          <CardDescription>National Audit Office — Audio Learning Platform</CardDescription>
+          <CardDescription>
+            {isSignUp ? 'Create your account' : 'National Audit Office — Audio Learning Platform'}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pb-8">
           <div className="flex rounded-lg overflow-hidden text-sm border border-border">
@@ -102,6 +122,16 @@ function LoginForm() {
                 </button>
               </form>
             )
+          ) : sent ? (
+            <div className="text-center space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Confirmation email sent to <span className="font-medium text-foreground">{email}</span>.
+              </p>
+              <p className="text-sm text-muted-foreground">Check your inbox to verify your account.</p>
+              <Button variant="outline" className="mt-4 w-full" onClick={() => { setSent(false); setIsSignUp(false) }}>
+                Back to sign in
+              </Button>
+            </div>
           ) : (
             <form onSubmit={handlePassword} className="space-y-4">
               <div className="space-y-2">
@@ -113,8 +143,15 @@ function LoginForm() {
                 <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
               <button type="submit" className="btn-gradient w-full py-2.5 rounded-lg text-sm font-medium disabled:opacity-50" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? (isSignUp ? 'Creating account...' : 'Signing in...') : (isSignUp ? 'Create account' : 'Sign in')}
               </button>
+              <p className="text-center text-sm text-muted-foreground">
+                {isSignUp ? (
+                  <>Already have an account?{' '}<button type="button" className="text-primary hover:underline font-medium" onClick={() => setIsSignUp(false)}>Sign in</button></>
+                ) : (
+                  <>Don&apos;t have an account?{' '}<button type="button" className="text-primary hover:underline font-medium" onClick={() => setIsSignUp(true)}>Sign up</button></>
+                )}
+              </p>
             </form>
           )}
         </CardContent>
