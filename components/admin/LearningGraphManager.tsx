@@ -1,3 +1,14 @@
+/**
+ * @module LearningGraphManager
+ *
+ * Admin interface for creating and managing learning paths (graphs).
+ *
+ * Key responsibilities:
+ * - Provides a form for creating new learning paths with title, description, domain, and mode
+ * - Lists existing learning paths with publish/unpublish, edit, and delete actions
+ * - Supports both linear and graph-based path types
+ * - Persists changes via API calls with optimistic UI updates
+ */
 'use client'
 
 import { useState } from 'react'
@@ -55,7 +66,8 @@ export function LearningGraphManager({ graphs: initialGraphs }: { graphs: Learni
       form.reset()
       toast.success('Learning path created!')
       router.refresh()
-    } catch {
+    } catch (error) {
+      console.error('[LearningGraphManager] Failed to create learning path:', error)
       toast.error('Failed to create learning path')
     } finally {
       setLoading(false)
@@ -65,7 +77,7 @@ export function LearningGraphManager({ graphs: initialGraphs }: { graphs: Learni
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/learning-graphs/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      setGraphs((prev) => prev.filter((g) => g.id !== id))
+      setGraphs((prev) => prev.filter((graph) => graph.id !== id))
       toast.success('Learning path deleted')
     } else {
       toast.error('Failed to delete learning path')
@@ -80,7 +92,7 @@ export function LearningGraphManager({ graphs: initialGraphs }: { graphs: Learni
     })
     if (res.ok) {
       setGraphs((prev) =>
-        prev.map((g) => (g.id === id ? { ...g, is_published: !isPublished } : g))
+        prev.map((graph) => (graph.id === id ? { ...graph, is_published: !isPublished } : graph))
       )
       toast.success(isPublished ? 'Unpublished' : 'Published!')
     } else {
@@ -136,8 +148,8 @@ export function LearningGraphManager({ graphs: initialGraphs }: { graphs: Learni
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {DOMAINS.map((d) => (
-                            <SelectItem key={d} value={d}>{d}</SelectItem>
+                          {DOMAINS.map((domain) => (
+                            <SelectItem key={domain} value={domain}>{domain}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

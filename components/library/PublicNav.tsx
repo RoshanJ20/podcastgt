@@ -1,3 +1,13 @@
+/**
+ * @module PublicNav
+ *
+ * Top navigation bar for the public-facing site with links to library, learning paths, and search.
+ *
+ * Key responsibilities:
+ * - Renders a sticky header with brand logo and main navigation links
+ * - Highlights the currently active route with gradient styling
+ * - Provides quick access to the admin panel via a settings icon
+ */
 'use client'
 
 import Link from 'next/link'

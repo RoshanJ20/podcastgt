@@ -1,3 +1,14 @@
+/**
+ * @module NodeDetailModal
+ *
+ * Modal dialog displaying detailed information about a learning path node/bulletin.
+ *
+ * Key responsibilities:
+ * - Shows podcast details including thumbnail, domain, and description
+ * - Embeds an inline audio player for previewing the bulletin
+ * - Provides a link to the bulletin PDF and full podcast page
+ * - Supports marking a node as complete for progress tracking
+ */
 'use client'
 
 import {

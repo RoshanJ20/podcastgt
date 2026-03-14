@@ -1,3 +1,14 @@
+/**
+ * @module PodcastCard
+ *
+ * Card component for displaying a podcast/bulletin summary in the library grid.
+ *
+ * Key responsibilities:
+ * - Renders a thumbnail with domain badge and hover play overlay
+ * - Shows podcast title, year, tags, and available media indicators (transcript, PDF)
+ * - Links to the full podcast detail/player page
+ * - Applies hover effects and smooth transitions for visual interactivity
+ */
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Play, FileText } from 'lucide-react'

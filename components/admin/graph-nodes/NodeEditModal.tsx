@@ -1,3 +1,14 @@
+/**
+ * @module NodeEditModal
+ *
+ * Modal dialog for editing a podcast node within a learning graph.
+ *
+ * Key responsibilities:
+ * - Allows editing of bulletin title, description, and domain
+ * - Supports changing the node type (default, start, milestone, end)
+ * - Displays attached media badges (audio, PDF)
+ * - Persists changes to the podcast via API and notifies parent components
+ */
 'use client'
 
 import { useState } from 'react'
@@ -76,7 +87,8 @@ export function NodeEditModal({
       })
       toast.success('Bulletin updated!')
       onOpenChange(false)
-    } catch {
+    } catch (error) {
+      console.error('[NodeEditModal] Failed to update bulletin:', error)
       toast.error('Failed to update bulletin')
     } finally {
       setSaving(false)
@@ -116,26 +128,26 @@ export function NodeEditModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Domain</Label>
-              <Select value={domain} onValueChange={(v) => v && setDomain(v)}>
+              <Select value={domain} onValueChange={(value) => value && setDomain(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {DOMAINS.map((d) => (
-                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                  {DOMAINS.map((domain) => (
+                    <SelectItem key={domain} value={domain}>{domain}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Node Type</Label>
-              <Select value={nodeType} onValueChange={(v) => onNodeTypeChange(v as GraphNodeType)}>
+              <Select value={nodeType} onValueChange={(value) => onNodeTypeChange(value as GraphNodeType)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {GRAPH_NODE_TYPES.map((t) => (
-                    <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+                  {GRAPH_NODE_TYPES.map((type) => (
+                    <SelectItem key={type} value={type} className="capitalize">{type}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

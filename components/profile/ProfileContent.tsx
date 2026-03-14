@@ -1,3 +1,14 @@
+/**
+ * @module ProfileContent
+ *
+ * User profile page displaying account info, learning progress, and bookmarks.
+ *
+ * Key responsibilities:
+ * - Shows user avatar, email, join date, and summary statistics
+ * - Displays learning path progress grouped by graph with completed nodes
+ * - Lists all bookmarks with podcast links, timestamps, and delete controls
+ * - Provides sign-out and navigation to analytics
+ */
 'use client'
 
 import { useState } from 'react'
@@ -69,7 +80,7 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
       body: JSON.stringify({ id }),
     })
     if (res.ok) {
-      setBookmarks((prev) => prev.filter((b) => b.id !== id))
+      setBookmarks((prev) => prev.filter((bookmark) => bookmark.id !== id))
       toast.success('Bookmark removed')
     } else {
       toast.error('Failed to remove bookmark')
@@ -89,10 +100,10 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
   })
 
   // Group progress by graph
-  const progressByGraph = progress.reduce<Record<string, ProgressWithGraph[]>>((acc, p) => {
-    const graphId = p.graph_id
+  const progressByGraph = progress.reduce<Record<string, ProgressWithGraph[]>>((acc, progressEntry) => {
+    const graphId = progressEntry.graph_id
     if (!acc[graphId]) acc[graphId] = []
-    acc[graphId].push(p)
+    acc[graphId].push(progressEntry)
     return acc
   }, {})
 
@@ -232,13 +243,13 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
           </Card>
         ) : (
           <div className="space-y-2">
-            {bookmarks.map((bm) => (
-              <Card key={bm.id} className="glass-card hover:border-primary/20 transition-colors">
+            {bookmarks.map((bookmark) => (
+              <Card key={bookmark.id} className="glass-card hover:border-primary/20 transition-colors">
                 <CardContent className="py-3">
                   <div className="flex items-start gap-3">
-                    {bm.podcast?.thumbnail_url ? (
+                    {bookmark.podcast?.thumbnail_url ? (
                       <img
-                        src={bm.podcast.thumbnail_url}
+                        src={bookmark.podcast.thumbnail_url}
                         alt=""
                         className="w-10 h-10 rounded object-cover shrink-0"
                       />
@@ -247,31 +258,31 @@ export function ProfileContent({ user, bookmarks: initialBookmarks, progress }: 
                     )}
                     <div className="flex-1 min-w-0">
                       <Link
-                        href={`/podcast/${bm.podcast_id}`}
+                        href={`/podcast/${bookmark.podcast_id}`}
                         className="text-sm font-medium hover:underline line-clamp-1"
                       >
-                        {bm.podcast?.title ?? 'Unknown bulletin'}
+                        {bookmark.podcast?.title ?? 'Unknown bulletin'}
                       </Link>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs font-mono text-primary flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {formatTime(bm.timestamp_seconds)}
+                          {formatTime(bookmark.timestamp_seconds)}
                         </span>
-                        {bm.podcast?.domain && (
-                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${DOMAIN_COLORS[bm.podcast.domain]}`}>
-                            {bm.podcast.domain}
+                        {bookmark.podcast?.domain && (
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${DOMAIN_COLORS[bookmark.podcast.domain]}`}>
+                            {bookmark.podcast.domain}
                           </span>
                         )}
                       </div>
-                      {bm.note && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{bm.note}</p>
+                      {bookmark.note && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{bookmark.note}</p>
                       )}
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                      onClick={() => handleDeleteBookmark(bm.id)}
+                      onClick={() => handleDeleteBookmark(bookmark.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

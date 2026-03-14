@@ -1,3 +1,13 @@
+/**
+ * @module UsersPage
+ *
+ * Superadmin-only page for managing user roles.
+ *
+ * Key responsibilities:
+ * - Authenticates the user and verifies superadmin role
+ * - Redirects non-superadmin users to the unauthorized page
+ * - Renders the UserRoleManager component for assigning roles
+ */
 import { createClient } from '@/lib/supabase/server'
 import { UserRoleManager } from '@/components/admin/UserRoleManager'
 import { redirect } from 'next/navigation'

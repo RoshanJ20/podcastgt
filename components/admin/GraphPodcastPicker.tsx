@@ -1,3 +1,14 @@
+/**
+ * @module GraphPodcastPicker
+ *
+ * Searchable picker panel for adding bulletins (podcasts) to a learning graph canvas.
+ *
+ * Key responsibilities:
+ * - Provides a searchable list of available podcasts/bulletins
+ * - Filters podcasts by title and domain with real-time search
+ * - Tracks which podcasts are already on the canvas to prevent duplicates
+ * - Offers inline upload dialog for creating new bulletins
+ */
 'use client'
 
 import { useState, useMemo } from 'react'
@@ -35,11 +46,11 @@ export function GraphPodcastPicker({
 
   const filtered = useMemo(() => {
     if (!search.trim()) return podcasts
-    const q = search.toLowerCase()
+    const searchQuery = search.toLowerCase()
     return podcasts.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.domain.toLowerCase().includes(q)
+      (podcast) =>
+        podcast.title.toLowerCase().includes(searchQuery) ||
+        podcast.domain.toLowerCase().includes(searchQuery)
     )
   }, [podcasts, search])
 

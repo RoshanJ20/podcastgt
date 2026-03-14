@@ -1,3 +1,14 @@
+/**
+ * @module AudioPlayer
+ *
+ * Full-featured audio player with short/long duration toggle, progress slider, and volume controls.
+ *
+ * Key responsibilities:
+ * - Plays audio with support for both short and long versions of a bulletin
+ * - Provides playback controls (play/pause, skip forward/back, seek)
+ * - Manages volume and mute state with a slider control
+ * - Reports current playback time to parent via callback for transcript syncing
+ */
 'use client'
 
 import { useRef, useState, useEffect, useCallback } from 'react'
@@ -132,9 +143,9 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
           max={duration || 100}
           step={0.1}
           value={[currentTime]}
-          onValueChange={(v) => {
-            const val = Array.isArray(v) ? (v as number[])[0] : (v as number)
-            if (audioRef.current) audioRef.current.currentTime = val
+          onValueChange={(sliderValue) => {
+            const seekPosition = Array.isArray(sliderValue) ? (sliderValue as number[])[0] : (sliderValue as number)
+            if (audioRef.current) audioRef.current.currentTime = seekPosition
           }}
           className="cursor-pointer"
         />
@@ -166,9 +177,9 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
             variant="ghost"
             size="icon"
             onClick={() => {
-              setMuted((m) => {
-                if (audioRef.current) audioRef.current.muted = !m
-                return !m
+              setMuted((isMuted) => {
+                if (audioRef.current) audioRef.current.muted = !isMuted
+                return !isMuted
               })
             }}
             className="text-muted-foreground hover:text-foreground"
@@ -180,11 +191,11 @@ export function AudioPlayer({ shortUrl, longUrl, onTimeUpdate, seekTo }: AudioPl
             max={1}
             step={0.05}
             value={[muted ? 0 : volume]}
-            onValueChange={(v) => {
-              const val = Array.isArray(v) ? (v as number[])[0] : (v as number)
-              setVolume(val)
-              if (audioRef.current) audioRef.current.volume = val
-              if (val > 0) setMuted(false)
+            onValueChange={(sliderValue) => {
+              const volumeLevel = Array.isArray(sliderValue) ? (sliderValue as number[])[0] : (sliderValue as number)
+              setVolume(volumeLevel)
+              if (audioRef.current) audioRef.current.volume = volumeLevel
+              if (volumeLevel > 0) setMuted(false)
             }}
             className="w-20 cursor-pointer"
           />

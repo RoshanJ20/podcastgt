@@ -1,3 +1,13 @@
+/**
+ * @module ThemeToggle
+ *
+ * Button component for toggling between light and dark themes.
+ *
+ * Key responsibilities:
+ * - Toggles the application theme between light and dark modes via next-themes
+ * - Renders a sun or moon icon based on the current theme
+ * - Handles SSR hydration mismatch by deferring render until mounted
+ */
 'use client'
 
 import { useTheme } from 'next-themes'

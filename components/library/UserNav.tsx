@@ -1,3 +1,14 @@
+/**
+ * @module UserNav
+ *
+ * User navigation widget for the sidebar footer showing auth state and actions.
+ *
+ * Key responsibilities:
+ * - Detects authentication state and renders sign-in prompt or user dropdown
+ * - Provides navigation to profile, bookmarks, progress, and admin pages
+ * - Handles sign-out with full page redirect
+ * - Includes theme toggle between light and dark modes
+ */
 'use client'
 
 import { useState, useEffect } from 'react'

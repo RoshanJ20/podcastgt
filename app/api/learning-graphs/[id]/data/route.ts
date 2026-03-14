@@ -1,52 +1,37 @@
+/**
+ * @module api/learning-graphs/[id]/data
+ *
+ * Handles bulk replacement of nodes and edges for a learning graph.
+ *
+ * Key responsibilities:
+ * - Validate incoming graph data against the Zod schema.
+ * - Replace all existing nodes and edges atomically.
+ * - Map client-side temporary IDs to server-generated UUIDs for edges.
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { saveGraphDataSchema } from '@/lib/schemas/learning-graph'
+import {
+  unauthorizedResponse,
+  validationErrorResponse,
+  internalErrorResponse,
+} from '@/lib/api/error-response'
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+type RouteContext = { params: Promise<{ id: string }> }
+
+/**
+ * Build row payloads for inserting nodes into the database.
+ *
+ * @param graphId - The parent graph's UUID.
+ * @param nodes - Validated node data from the request.
+ * @returns Array of row objects ready for Supabase insert.
+ */
+function buildNodeInsertPayloads(
+  graphId: string,
+  nodes: { podcast_id: string; position_x: number; position_y: number; label?: string | null; node_type: string; sort_order?: number | null }[]
 ) {
-  const { id: graphId } = await params
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const body = await request.json()
-  const parsed = saveGraphDataSchema.safeParse(body)
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
-  }
-
-  const { nodes, edges } = parsed.data
-
-  // Delete existing nodes and edges (edges cascade from nodes, but delete explicitly for clarity)
-  const { error: deleteEdgesError } = await supabase
-    .from('learning_graph_edges')
-    .delete()
-    .eq('graph_id', graphId)
-
-  if (deleteEdgesError) {
-    return NextResponse.json({ error: deleteEdgesError.message }, { status: 500 })
-  }
-
-  const { error: deleteNodesError } = await supabase
-    .from('learning_graph_nodes')
-    .delete()
-    .eq('graph_id', graphId)
-
-  if (deleteNodesError) {
-    return NextResponse.json({ error: deleteNodesError.message }, { status: 500 })
-  }
-
-  if (nodes.length === 0) {
-    return NextResponse.json({ nodes: [], edges: [] })
-  }
-
-  // Insert new nodes
-  const nodeRows = nodes.map((node) => ({
+  return nodes.map((node) => ({
     graph_id: graphId,
     podcast_id: node.podcast_id,
     position_x: node.position_x,
@@ -55,44 +40,110 @@ export async function PUT(
     node_type: node.node_type,
     sort_order: node.sort_order ?? 0,
   }))
+}
+
+/**
+ * Create a mapping from client-side temporary IDs to server-generated UUIDs.
+ *
+ * The client sends edges referencing nodes by temporary IDs (the node's original `id`
+ * or its array index as a string). This function maps those to the real UUIDs returned
+ * after insertion.
+ *
+ * @param clientNodes - The original node data sent by the client.
+ * @param insertedNodes - The nodes returned by Supabase after insertion.
+ * @returns A record mapping temporary IDs to real database UUIDs.
+ */
+function buildTemporaryIdMapping(
+  clientNodes: { id?: string | null }[],
+  insertedNodes: { id: string }[]
+): Record<string, string> {
+  const mapping: Record<string, string> = {}
+  clientNodes.forEach((node, index) => {
+    const temporaryId = node.id ?? String(index)
+    mapping[temporaryId] = insertedNodes[index].id
+  })
+  return mapping
+}
+
+/**
+ * Replace all nodes and edges for a learning graph.
+ *
+ * Performs a delete-then-insert strategy: removes existing edges and nodes,
+ * inserts the new set, maps temporary client IDs to real UUIDs for edge references,
+ * then returns the fully hydrated graph.
+ *
+ * @param request - JSON body validated against `saveGraphDataSchema`.
+ * @param context - Route context containing the graph `id` param.
+ * @returns The complete saved graph with nodes (including podcast data) and edges.
+ * @throws 401 if user is not authenticated.
+ * @throws 400 if the request body fails schema validation.
+ * @throws 500 if any database operation fails.
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: RouteContext
+): Promise<NextResponse> {
+  const { id: graphId } = await params
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return unauthorizedResponse()
+
+  const body = await request.json()
+  const parsed = saveGraphDataSchema.safeParse(body)
+  if (!parsed.success) {
+    return validationErrorResponse('Invalid graph data', parsed.error.flatten())
+  }
+
+  const { nodes, edges } = parsed.data
+
+  // Delete existing edges before nodes to avoid FK constraint issues
+  const { error: deleteEdgesError } = await supabase
+    .from('learning_graph_edges')
+    .delete()
+    .eq('graph_id', graphId)
+
+  if (deleteEdgesError) return internalErrorResponse('delete existing edges', deleteEdgesError)
+
+  const { error: deleteNodesError } = await supabase
+    .from('learning_graph_nodes')
+    .delete()
+    .eq('graph_id', graphId)
+
+  if (deleteNodesError) return internalErrorResponse('delete existing nodes', deleteNodesError)
+
+  if (nodes.length === 0) {
+    return NextResponse.json({ nodes: [], edges: [] })
+  }
+
+  const nodePayloads = buildNodeInsertPayloads(graphId, nodes)
 
   const { data: insertedNodes, error: insertNodesError } = await supabase
     .from('learning_graph_nodes')
-    .insert(nodeRows)
+    .insert(nodePayloads)
     .select()
 
   if (insertNodesError || !insertedNodes) {
-    return NextResponse.json({ error: insertNodesError?.message ?? 'Failed to insert nodes' }, { status: 500 })
+    return internalErrorResponse('insert nodes', insertNodesError)
   }
 
-  // Build a mapping from client-side node index to server-generated UUID
-  // The client sends edges referencing nodes by their temporary IDs (array index as string)
-  // We need to map those to the real UUIDs
-  const tempIdToRealId: Record<string, string> = {}
-  nodes.forEach((node, index) => {
-    const tempId = node.id ?? String(index)
-    tempIdToRealId[tempId] = insertedNodes[index].id
-  })
+  const temporaryIdMap = buildTemporaryIdMapping(nodes, insertedNodes)
 
-  // Insert edges with mapped node IDs
   if (edges.length > 0) {
-    const edgeRows = edges.map((edge) => ({
+    const edgePayloads = edges.map((edge) => ({
       graph_id: graphId,
-      source_node_id: tempIdToRealId[edge.source_node_id] ?? edge.source_node_id,
-      target_node_id: tempIdToRealId[edge.target_node_id] ?? edge.target_node_id,
+      source_node_id: temporaryIdMap[edge.source_node_id] ?? edge.source_node_id,
+      target_node_id: temporaryIdMap[edge.target_node_id] ?? edge.target_node_id,
       label: edge.label ?? null,
     }))
 
     const { error: insertEdgesError } = await supabase
       .from('learning_graph_edges')
-      .insert(edgeRows)
+      .insert(edgePayloads)
 
-    if (insertEdgesError) {
-      return NextResponse.json({ error: insertEdgesError.message }, { status: 500 })
-    }
+    if (insertEdgesError) return internalErrorResponse('insert edges', insertEdgesError)
   }
 
-  // Return the full graph data
   const { data: savedGraph, error: fetchError } = await supabase
     .from('learning_graphs')
     .select(`
@@ -103,9 +154,7 @@ export async function PUT(
     .eq('id', graphId)
     .single()
 
-  if (fetchError) {
-    return NextResponse.json({ error: fetchError.message }, { status: 500 })
-  }
+  if (fetchError) return internalErrorResponse('fetch saved graph', fetchError)
 
   return NextResponse.json(savedGraph)
 }

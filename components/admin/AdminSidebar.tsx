@@ -1,3 +1,13 @@
+/**
+ * @module AdminSidebar
+ *
+ * Sidebar navigation for the admin panel with role-based menu items.
+ *
+ * Key responsibilities:
+ * - Renders navigation links for admin content management (dashboard, upload, learning paths)
+ * - Conditionally shows superadmin-only menu items (user role management)
+ * - Provides user account dropdown with sign-out and theme toggle
+ */
 'use client'
 
 import Link from 'next/link'

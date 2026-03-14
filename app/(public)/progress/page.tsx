@@ -1,3 +1,13 @@
+/**
+ * @module ProgressPage
+ *
+ * Authenticated user progress dashboard with analytics across all learning paths.
+ *
+ * Key responsibilities:
+ * - Fetches all published learning graphs, user progress, bookmarks, and recent activity
+ * - Transforms and unwraps Supabase joined relations into clean data structures
+ * - Renders the ProgressDashboard component with enriched data
+ */
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ProgressDashboard } from '@/components/progress/ProgressDashboard'
@@ -52,48 +62,48 @@ export default async function ProgressPage() {
     .order('created_at', { ascending: false })
 
   // Enrich graphs with node counts
-  const enrichedGraphs = (allGraphs ?? []).map((g) => ({
-    id: g.id as string,
-    title: g.title as string,
-    domain: g.domain as Domain,
-    nodeCount: (g.node_count as unknown as { count: number }[])?.[0]?.count ?? 0,
+  const enrichedGraphs = (allGraphs ?? []).map((graph) => ({
+    id: graph.id as string,
+    title: graph.title as string,
+    domain: graph.domain as Domain,
+    nodeCount: (graph.node_count as unknown as { count: number }[])?.[0]?.count ?? 0,
   }))
 
   // Transform progress: unwrap Supabase joined arrays into single objects
-  const progress = (rawProgress ?? []).map((p) => {
-    const graph = unwrapOne(p.graph)
-    const rawNode = unwrapOne(p.node)
+  const progress = (rawProgress ?? []).map((record) => {
+    const graph = unwrapOne(record.graph)
+    const rawNode = unwrapOne(record.node)
     const node = rawNode
       ? { ...rawNode, podcast: unwrapOne((rawNode as Record<string, unknown>).podcast as unknown[]) as { id: string; title: string; thumbnail_url: string | null } | undefined }
       : undefined
     return {
-      id: p.id as string,
-      graph_id: p.graph_id as string,
-      node_id: p.node_id as string,
-      completed_at: p.completed_at as string,
+      id: record.id as string,
+      graph_id: record.graph_id as string,
+      node_id: record.node_id as string,
+      completed_at: record.completed_at as string,
       graph: graph ? { id: graph.id as string, title: graph.title as string, domain: graph.domain as Domain } : undefined,
       node: node ? { id: node.id as string, label: node.label as string | null, podcast: node.podcast } : undefined,
     }
   })
 
   // Transform bookmarks: unwrap podcast join
-  const bookmarks = (rawBookmarks ?? []).map((b) => {
-    const podcast = unwrapOne(b.podcast)
+  const bookmarks = (rawBookmarks ?? []).map((bookmark) => {
+    const podcast = unwrapOne(bookmark.podcast)
     return {
-      id: b.id as string,
-      created_at: b.created_at as string,
+      id: bookmark.id as string,
+      created_at: bookmark.created_at as string,
       podcast: podcast ? { id: podcast.id as string, title: podcast.title as string, domain: podcast.domain as Domain } : undefined,
     }
   })
 
   // Transform activity
-  const activity = (rawActivity ?? []).map((a) => ({
-    id: a.id as string,
-    activity_type: a.activity_type as string,
-    podcast_id: a.podcast_id as string | null,
-    graph_id: a.graph_id as string | null,
-    created_at: a.created_at as string,
-    metadata: (a.metadata ?? {}) as Record<string, unknown>,
+  const activity = (rawActivity ?? []).map((activityRecord) => ({
+    id: activityRecord.id as string,
+    activity_type: activityRecord.activity_type as string,
+    podcast_id: activityRecord.podcast_id as string | null,
+    graph_id: activityRecord.graph_id as string | null,
+    created_at: activityRecord.created_at as string,
+    metadata: (activityRecord.metadata ?? {}) as Record<string, unknown>,
   }))
 
   return (

@@ -1,18 +1,24 @@
-// TODO: Implement "Ask the Podcast" AI search using OpenAI embeddings + Supabase pgvector
-// This file is scaffolded for future implementation when API keys are provided.
+/**
+ * @module embeddings
+ *
+ * Generates text embeddings for semantic search over podcast transcripts.
+ *
+ * Key responsibilities:
+ * - Convert text input into vector embeddings using OpenAI's embedding model.
+ *
+ * Dependencies:
+ * - Requires OPENAI_API_KEY environment variable.
+ *
+ * TODO(team): Replace placeholder with real OpenAI integration once API key is provisioned.
+ */
 
-// import OpenAI from 'openai'
-// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-// export async function generateEmbedding(text: string): Promise<number[]> {
-//   const response = await openai.embeddings.create({
-//     model: 'text-embedding-3-small',
-//     input: text,
-//   })
-//   return response.data[0].embedding
-// }
-
+/**
+ * Generate a vector embedding for the given text.
+ *
+ * @param _text - The text to embed (unused in placeholder implementation).
+ * @returns A numeric array representing the embedding vector.
+ * @throws Error always in the current placeholder — will be replaced with actual OpenAI call.
+ */
 export async function generateEmbedding(_text: string): Promise<number[]> {
-  // Placeholder — replace with actual implementation
   throw new Error('AI search not yet implemented. Add OPENAI_API_KEY to enable.')
 }

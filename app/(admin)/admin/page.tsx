@@ -1,3 +1,13 @@
+/**
+ * @module AdminDashboard
+ *
+ * Main admin dashboard showing summary statistics and bulletin management.
+ *
+ * Key responsibilities:
+ * - Displays aggregate counts for bulletins and learning paths
+ * - Provides quick-action cards for uploading bulletins and creating learning paths
+ * - Renders a sortable table of all bulletins for editing and reordering
+ */
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Headphones, GitBranch, Mic, BookOpen } from 'lucide-react'

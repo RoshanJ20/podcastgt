@@ -1,3 +1,13 @@
+/**
+ * @module PublicSidebar
+ *
+ * Sidebar navigation for the public-facing site with browse links and user controls.
+ *
+ * Key responsibilities:
+ * - Renders navigation links for bulletins, learning paths, and progress
+ * - Highlights the active route in the sidebar menu
+ * - Embeds the UserNav component in the sidebar footer for auth and theme controls
+ */
 'use client'
 
 import Link from 'next/link'

@@ -1,3 +1,14 @@
+/**
+ * @module LearningPathCard
+ *
+ * Card component for displaying a learning path summary in the public library grid.
+ *
+ * Key responsibilities:
+ * - Renders a visually rich card with thumbnail, domain badge, and path type indicator
+ * - Shows bulletin count and description when available
+ * - Links to the full learning path detail page
+ * - Applies hover effects for interactive visual feedback
+ */
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { GitBranch, List } from 'lucide-react'

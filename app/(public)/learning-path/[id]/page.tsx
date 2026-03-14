@@ -1,3 +1,13 @@
+/**
+ * @module LearningPathDetailPage
+ *
+ * Public page for viewing and interacting with a specific learning path.
+ *
+ * Key responsibilities:
+ * - Fetches the published learning graph with nodes, edges, and podcast data
+ * - Returns a 404 if the graph does not exist or is unpublished
+ * - Renders the LearningPathViewer with authentication status for progress tracking
+ */
 import { createClient } from '@/lib/supabase/server'
 import { LearningPathViewer } from '@/components/learning-path/LearningPathViewer'
 import { Badge } from '@/components/ui/badge'

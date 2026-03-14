@@ -1,3 +1,14 @@
+/**
+ * @module PodcastTable
+ *
+ * Drag-and-drop sortable table of podcasts/bulletins for the admin dashboard.
+ *
+ * Key responsibilities:
+ * - Renders a table of all bulletins with title, domain, type, and tags
+ * - Supports drag-and-drop reordering with persisted sort order
+ * - Provides edit and delete actions per row with confirmation dialogs
+ * - Navigates to edit page on row click
+ */
 'use client'
 
 import { useState } from 'react'
@@ -157,13 +168,13 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const oldIndex = podcasts.findIndex((p) => p.id === active.id)
-    const newIndex = podcasts.findIndex((p) => p.id === over.id)
+    const oldIndex = podcasts.findIndex((podcast) => podcast.id === active.id)
+    const newIndex = podcasts.findIndex((podcast) => podcast.id === over.id)
     const reordered = arrayMove(podcasts, oldIndex, newIndex)
     setPodcasts(reordered)
 
     // Persist new sort_order for affected items
-    const updates = reordered.map((p, i) => ({ id: p.id, sort_order: i }))
+    const updates = reordered.map((podcast, index) => ({ id: podcast.id, sort_order: index }))
 
     try {
       await Promise.all(
@@ -175,7 +186,8 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
           })
         )
       )
-    } catch {
+    } catch (error) {
+      console.error('[PodcastTable] Failed to save order:', error)
       toast.error('Failed to save order')
       setPodcasts(initialPodcasts)
     }
@@ -184,7 +196,7 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/podcasts/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      setPodcasts((prev) => prev.filter((p) => p.id !== id))
+      setPodcasts((prev) => prev.filter((podcast) => podcast.id !== id))
       toast.success('Bulletin deleted')
     } else {
       toast.error('Failed to delete bulletin')
@@ -205,7 +217,7 @@ export function PodcastTable({ initialPodcasts }: { initialPodcasts: Podcast[] }
               <th className="p-3 text-left font-medium">Actions</th>
             </tr>
           </thead>
-          <SortableContext items={podcasts.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={podcasts.map((podcast) => podcast.id)} strategy={verticalListSortingStrategy}>
             <tbody>
               {podcasts.map((podcast) => (
                 <SortableRow key={podcast.id} podcast={podcast} onDelete={handleDelete} />

@@ -1,3 +1,12 @@
+/**
+ * @module UploadPage
+ *
+ * Admin page for uploading a new audio bulletin to the library.
+ *
+ * Key responsibilities:
+ * - Renders the UploadForm component for creating new bulletins
+ * - Provides the page heading and description
+ */
 import { UploadForm } from '@/components/admin/UploadForm'
 
 export default function UploadPage() {

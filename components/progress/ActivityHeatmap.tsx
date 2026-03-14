@@ -1,3 +1,14 @@
+/**
+ * @module ActivityHeatmap
+ *
+ * GitHub-style activity heatmap showing user engagement over the last 13 weeks.
+ *
+ * Key responsibilities:
+ * - Aggregates activity dates into a per-day count grid
+ * - Renders a week-by-day grid with color intensity based on activity count
+ * - Displays month and day-of-week labels for orientation
+ * - Shows tooltips with activity count and date for each cell
+ */
 'use client'
 
 import { useMemo } from 'react'
@@ -31,8 +42,8 @@ export function ActivityHeatmap({ dates }: Props) {
   const { weeks, countByDate, monthLabels, totalDays } = useMemo(() => {
     // Count activities per day
     const counts: Record<string, number> = {}
-    dates.forEach((d) => {
-      const key = getDateKey(new Date(d))
+    dates.forEach((dateString) => {
+      const key = getDateKey(new Date(dateString))
       counts[key] = (counts[key] ?? 0) + 1
     })
 
@@ -58,20 +69,20 @@ export function ActivityHeatmap({ dates }: Props) {
     while (current <= today || weeksArr.length < numWeeks) {
       const week: { date: Date; key: string; count: number; future: boolean }[] = []
       for (let day = 0; day < 7; day++) {
-        const d = new Date(current)
-        const key = getDateKey(d)
-        const isFuture = d > today
+        const cellDate = new Date(current)
+        const key = getDateKey(cellDate)
+        const isFuture = cellDate > today
         week.push({
-          date: d,
+          date: cellDate,
           key,
           count: isFuture ? 0 : (counts[key] ?? 0),
           future: isFuture,
         })
 
         // Track month labels
-        if (d.getMonth() !== lastMonth && !isFuture) {
-          lastMonth = d.getMonth()
-          months.push({ label: getMonthLabel(d.getMonth()), weekIndex })
+        if (cellDate.getMonth() !== lastMonth && !isFuture) {
+          lastMonth = cellDate.getMonth()
+          months.push({ label: getMonthLabel(cellDate.getMonth()), weekIndex })
         }
 
         current.setDate(current.getDate() + 1)
@@ -90,7 +101,7 @@ export function ActivityHeatmap({ dates }: Props) {
     }
   }, [dates])
 
-  const activeDays = Object.values(countByDate ?? {}).filter((c) => c > 0).length
+  const activeDays = Object.values(countByDate ?? {}).filter((count) => count > 0).length
   const maxCount = Math.max(1, ...Object.values(countByDate ?? {}))
 
   return (
@@ -100,8 +111,8 @@ export function ActivityHeatmap({ dates }: Props) {
         <div className="flex items-center gap-1">
           <span>Less</span>
           <div className="flex gap-0.5">
-            {[0, 1, 3, 6, 10].map((n, i) => (
-              <div key={i} className={cn('w-2.5 h-2.5 rounded-sm', getIntensity(n))} />
+            {[0, 1, 3, 6, 10].map((activityCount, index) => (
+              <div key={index} className={cn('w-2.5 h-2.5 rounded-sm', getIntensity(activityCount))} />
             ))}
           </div>
           <span>More</span>
@@ -112,16 +123,16 @@ export function ActivityHeatmap({ dates }: Props) {
         <div className="inline-flex flex-col gap-0.5 min-w-fit">
           {/* Month labels */}
           <div className="flex gap-0.5 ml-8 mb-1">
-            {monthLabels.map((m, i) => (
+            {monthLabels.map((month, index) => (
               <div
-                key={`${m.label}-${i}`}
+                key={`${month.label}-${index}`}
                 className="text-[10px] text-muted-foreground"
                 style={{
                   position: 'relative',
-                  left: `${m.weekIndex * 12}px`,
+                  left: `${month.weekIndex * 12}px`,
                 }}
               >
-                {m.label}
+                {month.label}
               </div>
             ))}
           </div>
@@ -142,8 +153,8 @@ export function ActivityHeatmap({ dates }: Props) {
             </div>
 
             {/* Week columns */}
-            {weeks.map((week, wi) => (
-              <div key={wi} className="flex flex-col gap-0.5">
+            {weeks.map((week, weekIndex) => (
+              <div key={weekIndex} className="flex flex-col gap-0.5">
                 {week.map((cell) => (
                   <div
                     key={cell.key}

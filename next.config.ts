@@ -1,3 +1,15 @@
+/**
+ * @module next.config
+ *
+ * Next.js application configuration.
+ *
+ * Key responsibilities:
+ * - Configure standalone output mode for Docker deployments.
+ * - Set up canvas module aliasing required by react-pdf.
+ * - Configure remote image patterns for Supabase storage.
+ * - Set CORS headers for API routes in development.
+ */
+
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {

@@ -1,3 +1,13 @@
+/**
+ * @module EditGraphPage
+ *
+ * Admin page for editing a specific learning path graph or linear path.
+ *
+ * Key responsibilities:
+ * - Fetches the graph with its nodes, edges, and associated podcast data
+ * - Returns a 404 if the graph does not exist
+ * - Renders either LinearPathEditor or GraphEditor based on path_type
+ */
 import { createClient } from '@/lib/supabase/server'
 import { GraphEditor } from '@/components/admin/GraphEditor'
 import { LinearPathEditor } from '@/components/admin/LinearPathEditor'

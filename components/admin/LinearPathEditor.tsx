@@ -1,3 +1,13 @@
+/**
+ * @module LinearPathEditor
+ *
+ * Drag-and-drop editor for building and reordering linear learning paths.
+ *
+ * Key responsibilities:
+ * - Provides a sortable list interface for ordering bulletins in a linear path
+ * - Supports adding/removing bulletins via a sidebar podcast picker
+ * - Handles saving node order and publish/unpublish toggling via API
+ */
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
@@ -106,16 +116,16 @@ export function LinearPathEditor({
 
   // Initialize items from existing nodes, sorted by sort_order then position_y
   const [items, setItems] = useState<LinearItem[]>(() => {
-    const nodes = [...(graph.nodes ?? [])].sort((a, b) => {
-      if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order
-      return a.position_y - b.position_y
+    const nodes = [...(graph.nodes ?? [])].sort((first, second) => {
+      if (first.sort_order !== second.sort_order) return first.sort_order - second.sort_order
+      return first.position_y - second.position_y
     })
-    return nodes.map((n) => ({
-      id: n.id,
-      podcastId: n.podcast_id,
-      title: n.podcast?.title ?? 'Untitled',
-      domain: n.podcast?.domain ?? '',
-      thumbnailUrl: n.podcast?.thumbnail_url ?? null,
+    return nodes.map((node) => ({
+      id: node.id,
+      podcastId: node.podcast_id,
+      title: node.podcast?.title ?? 'Untitled',
+      domain: node.podcast?.domain ?? '',
+      thumbnailUrl: node.podcast?.thumbnail_url ?? null,
     }))
   })
 
@@ -133,8 +143,8 @@ export function LinearPathEditor({
     const { active, over } = event
     if (over && active.id !== over.id) {
       setItems((prev) => {
-        const oldIndex = prev.findIndex((i) => i.id === active.id)
-        const newIndex = prev.findIndex((i) => i.id === over.id)
+        const oldIndex = prev.findIndex((item) => item.id === active.id)
+        const newIndex = prev.findIndex((item) => item.id === over.id)
         return arrayMove(prev, oldIndex, newIndex)
       })
     }
@@ -154,7 +164,7 @@ export function LinearPathEditor({
   }, [])
 
   const handleRemove = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id))
+    setItems((prev) => prev.filter((item) => item.id !== id))
   }, [])
 
   const handlePodcastCreated = useCallback((podcast: PodcastSummary) => {
@@ -189,15 +199,15 @@ export function LinearPathEditor({
 
       if (saved.nodes) {
         const sortedNodes = [...saved.nodes].sort(
-          (a: LearningGraphNode, b: LearningGraphNode) => a.sort_order - b.sort_order
+          (first: LearningGraphNode, second: LearningGraphNode) => first.sort_order - second.sort_order
         )
         setItems(
-          sortedNodes.map((n: LearningGraphNode) => ({
-            id: n.id,
-            podcastId: n.podcast_id,
-            title: n.podcast?.title ?? 'Untitled',
-            domain: n.podcast?.domain ?? '',
-            thumbnailUrl: n.podcast?.thumbnail_url ?? null,
+          sortedNodes.map((node: LearningGraphNode) => ({
+            id: node.id,
+            podcastId: node.podcast_id,
+            title: node.podcast?.title ?? 'Untitled',
+            domain: node.podcast?.domain ?? '',
+            thumbnailUrl: node.podcast?.thumbnail_url ?? null,
           }))
         )
       }

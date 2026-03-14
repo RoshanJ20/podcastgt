@@ -1,6 +1,24 @@
+/**
+ * @module proxy
+ *
+ * Next.js middleware that protects admin routes behind authentication and role checks.
+ *
+ * Key responsibilities:
+ * - Refresh Supabase auth cookies on every request through the middleware.
+ * - Redirect unauthenticated users to the login page for admin routes.
+ * - Verify admin or superadmin role before granting access to admin pages.
+ */
+
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * Middleware handler that guards admin routes and refreshes auth cookies.
+ *
+ * @param request - The incoming Next.js request.
+ * @returns A NextResponse — either the proxied response with refreshed cookies,
+ *          a redirect to login, or a redirect to the unauthorized page.
+ */
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -39,13 +57,13 @@ export async function proxy(request: NextRequest) {
     }
 
     // Check role for admin-level access
-    const { data: roleData } = await supabase
+    const { data: callerRole } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .single()
 
-    if (!roleData || !['admin', 'superadmin'].includes(roleData.role)) {
+    if (!callerRole || !['admin', 'superadmin'].includes(callerRole.role)) {
       return NextResponse.redirect(new URL('/unauthorized', request.url))
     }
   }

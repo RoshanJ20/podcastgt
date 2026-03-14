@@ -1,3 +1,14 @@
+/**
+ * @module RootLayout
+ *
+ * Top-level application layout that wraps every page.
+ *
+ * Key responsibilities:
+ * - Loads Space Grotesk (headings) and Inter (body) fonts
+ * - Provides the ThemeProvider for light/dark mode support
+ * - Renders the global Toaster for toast notifications
+ * - Wraps all children in a TooltipProvider
+ */
 import type { Metadata } from 'next'
 import { Space_Grotesk, Inter } from 'next/font/google'
 import './globals.css'

@@ -1,3 +1,14 @@
+/**
+ * @module TranscriptViewer
+ *
+ * Scrollable transcript viewer with time-synced segment highlighting.
+ *
+ * Key responsibilities:
+ * - Displays timestamped transcript segments synchronized to audio playback
+ * - Highlights the currently active segment and auto-scrolls to keep it visible
+ * - Allows clicking a segment to seek the audio player to that timestamp
+ * - Falls back to displaying full plain-text transcript when segments are unavailable
+ */
 'use client'
 
 import { useRef, useEffect } from 'react'
@@ -18,9 +29,9 @@ export function TranscriptViewer({ segments, fullText, currentTime, onSeek }: Tr
 
   // Find the active segment index
   const activeIndex = segments.findIndex(
-    (seg, i) =>
-      currentTime >= seg.start &&
-      (i === segments.length - 1 || currentTime < segments[i + 1].start)
+    (segment, index) =>
+      currentTime >= segment.start &&
+      (index === segments.length - 1 || currentTime < segments[index + 1].start)
   )
 
   // Auto-scroll to active segment
@@ -49,13 +60,13 @@ export function TranscriptViewer({ segments, fullText, currentTime, onSeek }: Tr
   return (
     <ScrollArea className="h-64" ref={containerRef}>
       <div className="space-y-1 px-1">
-        {segments.map((seg, i) => {
-          const isActive = i === activeIndex
+        {segments.map((segment, index) => {
+          const isActive = index === activeIndex
           return (
             <button
-              key={i}
+              key={index}
               ref={isActive ? activeRef : undefined}
-              onClick={() => onSeek(seg.start)}
+              onClick={() => onSeek(segment.start)}
               className={cn(
                 'w-full text-left text-sm leading-relaxed px-2 py-1 rounded transition-colors',
                 isActive
@@ -63,8 +74,8 @@ export function TranscriptViewer({ segments, fullText, currentTime, onSeek }: Tr
                   : 'text-muted-foreground hover:bg-white/5 hover:text-foreground border-l-2 border-transparent'
               )}
             >
-              <span className="text-xs font-mono mr-2 opacity-60">{formatTime(seg.start)}</span>
-              {seg.text}
+              <span className="text-xs font-mono mr-2 opacity-60">{formatTime(segment.start)}</span>
+              {segment.text}
             </button>
           )
         })}
