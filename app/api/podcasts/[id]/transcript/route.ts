@@ -39,15 +39,22 @@ export async function POST(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return unauthorizedResponse()
 
-  const { full_text, segments } = await request.json()
+  const { full_text, segments, transcript_type = 'short' } = await request.json()
 
   if (!full_text || typeof full_text !== 'string') {
     return validationErrorResponse('full_text is required and must be a string')
   }
 
+  if (!['short', 'long'].includes(transcript_type)) {
+    return validationErrorResponse('transcript_type must be "short" or "long"')
+  }
+
   const { data: transcript, error: upsertError } = await supabase
     .from('transcripts')
-    .upsert({ podcast_id: podcastId, full_text, segments }, { onConflict: 'podcast_id' })
+    .upsert(
+      { podcast_id: podcastId, full_text, segments, transcript_type },
+      { onConflict: 'podcast_id,transcript_type' }
+    )
     .select()
     .single()
 
@@ -71,13 +78,13 @@ export async function GET(
   const { id: podcastId } = await params
   const supabase = await createClient()
 
-  const { data: transcript, error: fetchError } = await supabase
+  const { data: transcripts, error: fetchError } = await supabase
     .from('transcripts')
     .select('*')
     .eq('podcast_id', podcastId)
-    .single()
 
-  if (fetchError) return notFoundResponse('Transcript')
+  if (fetchError) return internalErrorResponse('fetch transcripts', fetchError)
+  if (!transcripts || transcripts.length === 0) return notFoundResponse('Transcript')
 
-  return NextResponse.json(transcript)
+  return NextResponse.json(transcripts)
 }

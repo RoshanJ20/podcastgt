@@ -94,13 +94,13 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
             />
           )}
           <div>
-            <p className="font-medium text-sm">{podcast.title}</p>
-            <p className="text-xs text-muted-foreground">{podcast.year}</p>
+            <p className="font-medium text-sm">{podcast.title ?? 'Untitled'}</p>
+            <p className="text-xs text-muted-foreground">{podcast.year ?? ''}</p>
           </div>
         </div>
       </td>
       <td className="p-3">
-        <Badge variant="outline">{podcast.domain}</Badge>
+        <Badge variant="outline">{podcast.domain ?? '\u2014'}</Badge>
       </td>
       <td className="p-3">
         <div className="flex gap-1 flex-wrap">
@@ -131,7 +131,7 @@ function SortableRow({ podcast, onDelete }: { podcast: Podcast; onDelete: (id: s
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete release?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  &ldquo;{podcast.title}&rdquo; will be permanently removed. This cannot be undone.
+                  &ldquo;{podcast.title ?? 'Untitled'}&rdquo; will be permanently removed. This cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

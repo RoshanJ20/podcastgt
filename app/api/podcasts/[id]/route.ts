@@ -32,7 +32,7 @@ export async function GET(
 
   const { data: podcast, error: fetchError } = await supabase
     .from('podcasts')
-    .select('*, transcript:transcripts(id, full_text, segments)')
+    .select('*, transcripts(id, full_text, segments, transcript_type)')
     .eq('id', podcastId)
     .single()
 

@@ -28,8 +28,8 @@ interface Props {
 }
 
 function InnerLayout({ podcast, isLoggedIn }: Props) {
-  const { currentTime, seekTo, setCurrentTime, handleSeek } = usePodcastPlayer()
-  const transcript = podcast.transcript
+  const { currentTime, seekTo, activeAudioType, setCurrentTime, handleSeek, setActiveAudioType } = usePodcastPlayer()
+  const transcript = podcast.transcripts?.find((t) => t.transcript_type === activeAudioType) ?? podcast.transcripts?.[0]
   const segments = (transcript?.segments as TranscriptSegment[]) ?? []
 
   return (
@@ -42,23 +42,27 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
             {podcast.thumbnail_url ? (
               <img
                 src={podcast.thumbnail_url}
-                alt={podcast.title}
+                alt={podcast.title ?? 'Bulletin'}
                 className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#60A5FA]/30 to-[#38BDF8]/20">
-                <span className="text-2xl font-bold text-white/30 font-[family-name:var(--font-heading)]">{podcast.domain}</span>
+                <span className="text-2xl font-bold text-white/30 font-[family-name:var(--font-heading)]">{podcast.domain ?? ''}</span>
               </div>
             )}
           </div>
           <div className="flex-1 space-y-2">
             <div className="flex flex-wrap gap-2">
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${DOMAIN_COLORS[podcast.domain]}`}>
-                {podcast.domain}
-              </span>
-              <Badge variant="secondary" className="font-semibold">{podcast.year}</Badge>
+              {podcast.domain && (
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${DOMAIN_COLORS[podcast.domain]}`}>
+                  {podcast.domain}
+                </span>
+              )}
+              {podcast.year != null && (
+                <Badge variant="secondary" className="font-semibold">{podcast.year}</Badge>
+              )}
             </div>
-            <h1 className="text-xl font-bold leading-snug font-[family-name:var(--font-heading)]">{podcast.title}</h1>
+            <h1 className="text-xl font-bold leading-snug font-[family-name:var(--font-heading)]">{podcast.title ?? 'Untitled'}</h1>
             {podcast.description && (
               <p className="text-sm text-muted-foreground">{podcast.description}</p>
             )}
@@ -80,6 +84,7 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
           shortUrl={podcast.audio_short_url}
           longUrl={podcast.audio_long_url}
           onTimeUpdate={setCurrentTime}
+          onDurationModeChange={setActiveAudioType}
           seekTo={seekTo}
         />
 
@@ -99,10 +104,10 @@ function InnerLayout({ podcast, isLoggedIn }: Props) {
           </Tabs>
         </div>
 
-        {/* Bulletin */}
-        {podcast.bulletin_url && (
-          <BulletinViewer url={podcast.bulletin_url} />
-        )}
+        {/* Bulletins */}
+        {podcast.bulletin_urls?.map((url, i) => (
+          <BulletinViewer key={i} url={url} />
+        ))}
       </div>
 
       {/* Right sidebar */}

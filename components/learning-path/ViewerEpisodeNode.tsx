@@ -53,7 +53,7 @@ const ViewerEpisodeNode = memo(function ViewerEpisodeNode({
           )}
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium leading-tight line-clamp-2">
-              {data.title}
+              {data.title ?? 'Untitled'}
             </p>
           </div>
         </div>

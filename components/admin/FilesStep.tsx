@@ -63,6 +63,7 @@ export function FilesStep({ files, onFilesChange }: FilesStepProps) {
           accept=".pdf"
           label="Attachment (PDF)"
           icon="pdf"
+          multiple
           files={files.bulletin}
           onFilesChange={(f) =>
             onFilesChange((prev) => ({ ...prev, bulletin: f }))
@@ -70,16 +71,28 @@ export function FilesStep({ files, onFilesChange }: FilesStepProps) {
         />
       </div>
 
-      <FileDropZone
-        accept=".txt,.vtt"
-        label="Transcript (optional)"
-        description="Plain text or VTT subtitle file"
-        icon="file"
-        files={files.transcript}
-        onFilesChange={(f) =>
-          onFilesChange((prev) => ({ ...prev, transcript: f }))
-        }
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <FileDropZone
+          accept=".txt,.vtt"
+          label="Transcript (Short)"
+          description="Plain text or VTT for short audio"
+          icon="file"
+          files={files.transcriptShort}
+          onFilesChange={(f) =>
+            onFilesChange((prev) => ({ ...prev, transcriptShort: f }))
+          }
+        />
+        <FileDropZone
+          accept=".txt,.vtt"
+          label="Transcript (Long)"
+          description="Plain text or VTT for long audio"
+          icon="file"
+          files={files.transcriptLong}
+          onFilesChange={(f) =>
+            onFilesChange((prev) => ({ ...prev, transcriptLong: f }))
+          }
+        />
+      </div>
     </div>
   )
 }

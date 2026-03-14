@@ -24,7 +24,8 @@ interface PodcastPlayerClientProps {
 
 function PlayerWithControls({ podcast, isLoggedIn }: PodcastPlayerClientProps) {
   const { currentTime, seekTo, setCurrentTime, handleSeek } = usePodcastPlayer()
-  const transcript = podcast.transcript
+  const { activeAudioType, setActiveAudioType } = usePodcastPlayer()
+  const transcript = podcast.transcripts?.find((t) => t.transcript_type === activeAudioType) ?? podcast.transcripts?.[0]
   const segments = (transcript?.segments as TranscriptSegment[]) ?? []
 
   return (

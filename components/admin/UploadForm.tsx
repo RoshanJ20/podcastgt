@@ -42,7 +42,7 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
     resolver: zodResolver(uploadFormSchema),
     defaultValues: editPodcast
       ? {
-          title: editPodcast.title,
+          title: editPodcast.title ?? undefined,
           description: editPodcast.description ?? '',
           domain: editPodcast.domain,
           year: editPodcast.year,
@@ -71,14 +71,20 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
 
   const prevStep = () => setStep((s) => Math.max(s - 1, 1))
 
-  const onSubmit = async (formValues: FormValues) => {
+  const handleUpload = async () => {
+    const formValues = form.getValues()
+    const hasFiles = Object.values(files).some((f) => f.length > 0)
+    if (!hasFiles && !editPodcast) {
+      toast.error('At least one file is required')
+      return
+    }
     setLoading(true)
     setUploadProgress({})
     try {
-      const fileUrls = await uploadAllFiles(files, setUploadProgress)
+      const uploadResult = await uploadAllFiles(files, setUploadProgress)
       const podcast = await saveBulletin(
         formValues,
-        fileUrls,
+        uploadResult,
         files,
         editPodcast?.id
       )
@@ -101,10 +107,10 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <StepIndicator currentStep={step} onStepClick={setStep} />
+      <StepIndicator currentStep={step} onStepClick={setStep} disabled={loading} />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           {step === 1 && <DetailsStep />}
           {step === 2 && <FilesStep files={files} onFilesChange={setFiles} />}
           {step === 3 && (
@@ -123,6 +129,7 @@ export function UploadForm({ editPodcast, onSuccess }: UploadFormProps) {
             onNext={nextStep}
             onPrev={prevStep}
             onCancel={() => router.back()}
+            onUpload={handleUpload}
           />
         </form>
       </Form>
@@ -138,6 +145,7 @@ function NavigationButtons({
   onNext,
   onPrev,
   onCancel,
+  onUpload,
 }: {
   step: number
   loading: boolean
@@ -145,6 +153,7 @@ function NavigationButtons({
   onNext: () => void
   onPrev: () => void
   onCancel: () => void
+  onUpload: () => void
 }) {
   return (
     <div className="flex items-center justify-between">
@@ -153,7 +162,8 @@ function NavigationButtons({
           <button
             type="button"
             onClick={onPrev}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#60A5FA]/30 transition-all"
+            disabled={loading}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium border border-border hover-glow hover:border-[#60A5FA]/30 transition-all disabled:opacity-50 disabled:pointer-events-none"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -164,7 +174,8 @@ function NavigationButtons({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2.5 rounded-lg text-sm font-medium border border-border text-muted-foreground hover:text-foreground transition-all"
+          disabled={loading}
+          className="px-4 py-2.5 rounded-lg text-sm font-medium border border-border text-muted-foreground hover:text-foreground transition-all disabled:opacity-50 disabled:pointer-events-none"
         >
           Cancel
         </button>
@@ -179,7 +190,8 @@ function NavigationButtons({
           </button>
         ) : (
           <button
-            type="submit"
+            type="button"
+            onClick={onUpload}
             disabled={loading}
             className="btn-gradient px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center gap-1.5"
           >

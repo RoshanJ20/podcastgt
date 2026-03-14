@@ -65,7 +65,7 @@ export function DetailsStep() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Title *</FormLabel>
+            <FormLabel>Title</FormLabel>
             <FormControl>
               <Input placeholder="Enter title" {...field} />
             </FormControl>
@@ -120,7 +120,7 @@ export function DetailsStep() {
           name="year"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Year *</FormLabel>
+              <FormLabel>Year</FormLabel>
               <FormControl>
                 <Input
                   type="number"

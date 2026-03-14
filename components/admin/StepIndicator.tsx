@@ -13,17 +13,18 @@ import { STEPS } from './upload-form-types'
 interface StepIndicatorProps {
   currentStep: number
   onStepClick: (step: number) => void
+  disabled?: boolean
 }
 
-export function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) {
+export function StepIndicator({ currentStep, onStepClick, disabled }: StepIndicatorProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
       {STEPS.map((s, i) => (
         <div key={s.number} className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => {
-              if (s.number < currentStep) onStepClick(s.number)
+              if (!disabled && s.number < currentStep) onStepClick(s.number)
             }}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
               currentStep === s.number

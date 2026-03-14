@@ -23,13 +23,13 @@ export function PodcastCard({ podcast }: { podcast: Podcast }) {
           {podcast.thumbnail_url ? (
             <img
               src={podcast.thumbnail_url}
-              alt={podcast.title}
+              alt={podcast.title ?? 'Bulletin'}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#60A5FA]/30 to-[#38BDF8]/20">
               <span className="text-4xl font-bold text-white/30 font-[family-name:var(--font-heading)]">
-                {podcast.domain}
+                {podcast.domain ?? ''}
               </span>
             </div>
           )}
@@ -40,23 +40,25 @@ export function PodcastCard({ podcast }: { podcast: Podcast }) {
             </div>
           </div>
           {/* Domain badge */}
+          {podcast.domain && (
           <div className="absolute top-2 left-2">
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${DOMAIN_COLORS[podcast.domain]}`}>
               {podcast.domain}
             </span>
           </div>
+          )}
         </div>
         <CardContent className="p-3 space-y-1.5">
-          <h3 className="font-medium text-sm line-clamp-2 leading-snug">{podcast.title}</h3>
+          <h3 className="font-medium text-sm line-clamp-2 leading-snug">{podcast.title ?? 'Untitled'}</h3>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{podcast.year}</span>
+            <span>{podcast.year ?? ''}</span>
             <div className="flex items-center gap-2">
-              {podcast.transcript && (
+              {podcast.transcripts && podcast.transcripts.length > 0 && (
                 <span className="flex items-center gap-0.5 text-[#60A5FA]" title="Transcript available">
                   <FileText className="h-3 w-3" />
                 </span>
               )}
-              {podcast.bulletin_url && (
+              {podcast.bulletin_urls?.length > 0 && (
                 <span className="text-[#38BDF8] font-medium" title="Attachment available">PDF</span>
               )}
             </div>

@@ -24,7 +24,8 @@ const FILE_SLOTS = [
   { key: 'audioShort', label: 'Audio (Brief Summary)', Icon: Music },
   { key: 'audioLong', label: 'Audio (Detailed Overview)', Icon: Music },
   { key: 'bulletin', label: 'Attachment PDF', Icon: FileText },
-  { key: 'transcript', label: 'Transcript', Icon: FileText },
+  { key: 'transcriptShort', label: 'Transcript (Brief)', Icon: FileText },
+  { key: 'transcriptLong', label: 'Transcript (Detailed)', Icon: FileText },
 ] as const
 
 export function ReviewStep({
@@ -33,7 +34,7 @@ export function ReviewStep({
   files,
   uploadProgress,
 }: ReviewStepProps) {
-  const fileCount = Object.values(files).filter((f) => f.length > 0).length
+  const totalFiles = Object.values(files).reduce((sum, f) => sum + f.length, 0)
 
   return (
     <div className="glass-card rounded-xl p-6 space-y-5">
@@ -50,18 +51,38 @@ export function ReviewStep({
 
       <div className="border-t border-border pt-4">
         <p className="text-xs text-muted-foreground mb-2">
-          Files ({fileCount} selected)
+          Files ({totalFiles} selected)
         </p>
         <div className="space-y-2">
-          {FILE_SLOTS.map(({ key, label, Icon }) => (
-            <FileRow
-              key={key}
-              label={label}
-              Icon={Icon}
-              file={files[key][0]}
-              progress={uploadProgress[key]}
-            />
-          ))}
+          {FILE_SLOTS.map(({ key, label, Icon }) => {
+            if (key === 'bulletin') {
+              // Bulletin supports multiple files
+              if (files.bulletin.length === 0) {
+                return <FileRow key={key} label={label} Icon={Icon} file={undefined} progress={undefined} />
+              }
+              return files.bulletin.map((file, i) => {
+                const progressKey = files.bulletin.length === 1 ? 'bulletin' : `bulletin_${i}`
+                return (
+                  <FileRow
+                    key={`${key}_${i}`}
+                    label={i === 0 ? label : `Bulletin PDF (${i + 1})`}
+                    Icon={Icon}
+                    file={file}
+                    progress={uploadProgress[progressKey]}
+                  />
+                )
+              })
+            }
+            return (
+              <FileRow
+                key={key}
+                label={label}
+                Icon={Icon}
+                file={files[key][0]}
+                progress={uploadProgress[key]}
+              />
+            )
+          })}
         </div>
       </div>
     </div>

@@ -60,25 +60,29 @@ export const DOMAIN_COLORS: Record<Domain, string> = {
 /** A podcast episode record from the database. */
 export interface Podcast {
   id: string
-  title: string
+  title: string | null
   description: string | null
-  domain: Domain
-  year: number
+  domain: Domain | null
+  year: number | null
   tags: string[]
   thumbnail_url: string | null
   audio_short_url: string | null
   audio_long_url: string | null
-  bulletin_url: string | null
+  bulletin_urls: string[]
   sort_order: number
   created_at: string
   updated_at: string
-  transcript?: Transcript | null
+  transcripts?: Transcript[] | null
 }
+
+/** Transcript type: short matches audio short, long matches audio long. */
+export type TranscriptType = 'short' | 'long'
 
 /** A transcript record linked to a podcast. */
 export interface Transcript {
   id: string
   podcast_id: string
+  transcript_type: TranscriptType
   full_text: string | null
   segments: TranscriptSegment[] | null
   created_at: string
