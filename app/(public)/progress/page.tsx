@@ -60,9 +60,19 @@ export default async function ProgressPage() {
       </div>
       <ProgressDashboard
         graphs={enrichedGraphs}
-        progress={(progress ?? []) as any}
-        bookmarks={(bookmarks ?? []) as any}
-        activity={(activity ?? []) as any}
+        progress={(progress ?? []) as Array<{
+          id: string; graph_id: string; node_id: string; completed_at: string;
+          graph?: { id: string; title: string; domain: string };
+          node?: { id: string; label: string | null; podcast?: { id: string; title: string; thumbnail_url: string | null } };
+        }>}
+        bookmarks={(bookmarks ?? []) as Array<{
+          id: string; created_at: string;
+          podcast?: { id: string; title: string; domain: string };
+        }>}
+        activity={(activity ?? []) as Array<{
+          id: string; activity_type: string; podcast_id: string | null;
+          graph_id: string | null; created_at: string; metadata: Record<string, unknown>;
+        }>}
       />
     </div>
   )
